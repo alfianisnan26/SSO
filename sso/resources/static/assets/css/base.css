@@ -1,0 +1,197 @@
+@font-face {
+    font-family: 'pjs';
+    src: url(/static/assets/fonts/PlusJakartaSans-Regular.eot?h=c4913953ca908a8c48c8faed51ec72b5) format('embedded-opentype'), url(/static/assets/fonts/PlusJakartaSans-Regular.eot?h=c4913953ca908a8c48c8faed51ec72b5) format('embedded-opentype'), url(/static/assets/fonts/PlusJakartaSans-Regular.woff2?h=c4913953ca908a8c48c8faed51ec72b5) format('woff2'), url(/static/assets/fonts/PlusJakartaSans-Regular.woff?h=c4913953ca908a8c48c8faed51ec72b5) format('woff'), url(/static/assets/fonts/PlusJakartaSans-Regular.ttf?h=c4913953ca908a8c48c8faed51ec72b5) format('truetype'), url(/static/assets/fonts/PlusJakartaSans-Regular.svg?h=c4913953ca908a8c48c8faed51ec72b5) format('svg');
+    font-weight: 400;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'pjs';
+    src: url(/static/assets/fonts/PlusJakartaSans-ExtraBold.eot?h=576ff17b66dcdd3fe1214dd68e7ad99a) format('embedded-opentype'), url(/static/assets/fonts/PlusJakartaSans-ExtraBold.eot?h=576ff17b66dcdd3fe1214dd68e7ad99a) format('embedded-opentype'), url(/static/assets/fonts/PlusJakartaSans-ExtraBold.woff2?h=576ff17b66dcdd3fe1214dd68e7ad99a) format('woff2'), url(/static/assets/fonts/PlusJakartaSans-ExtraBold.woff?h=576ff17b66dcdd3fe1214dd68e7ad99a) format('woff'), url(/static/assets/fonts/PlusJakartaSans-ExtraBold.ttf?h=576ff17b66dcdd3fe1214dd68e7ad99a) format('truetype'), url(/static/assets/fonts/PlusJakartaSans-ExtraBold.svg?h=576ff17b66dcdd3fe1214dd68e7ad99a) format('svg');
+    font-weight: 800;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'pjs';
+    src: url(/static/assets/fonts/PlusJakartaSans-Light.eot?h=633f547fb11128d611d07537792e3872) format('embedded-opentype'), url(/static/assets/fonts/PlusJakartaSans-Light.eot?h=633f547fb11128d611d07537792e3872) format('embedded-opentype'), url(/static/assets/fonts/PlusJakartaSans-Light.woff2?h=633f547fb11128d611d07537792e3872) format('woff2'), url(/static/assets/fonts/PlusJakartaSans-Light.woff?h=633f547fb11128d611d07537792e3872) format('woff'), url(/static/assets/fonts/PlusJakartaSans-Light.ttf?h=633f547fb11128d611d07537792e3872) format('truetype'), url(/static/assets/fonts/PlusJakartaSans-Light.svg?h=633f547fb11128d611d07537792e3872) format('svg');
+    font-weight: 200;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'pjs';
+    src: url(/static/assets/fonts/PlusJakartaSans-Medium.eot?h=ee038a962b87e08ea557058f5f4ad8b5) format('embedded-opentype'), url(/static/assets/fonts/PlusJakartaSans-Medium.eot?h=ee038a962b87e08ea557058f5f4ad8b5) format('embedded-opentype'), url(/static/assets/fonts/PlusJakartaSans-Medium.woff2?h=ee038a962b87e08ea557058f5f4ad8b5) format('woff2'), url(/static/assets/fonts/PlusJakartaSans-Medium.woff?h=ee038a962b87e08ea557058f5f4ad8b5) format('woff'), url(/static/assets/fonts/PlusJakartaSans-Medium.ttf?h=ee038a962b87e08ea557058f5f4ad8b5) format('truetype'), url(/static/assets/fonts/PlusJakartaSans-Medium.svg?h=ee038a962b87e08ea557058f5f4ad8b5) format('svg');
+    font-weight: 600;
+    font-style: normal
+}
+
+html {
+    font-family: 'pjs';
+    background-repeat: no-repeat;
+    background-position: center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    color: white;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+header {
+    position: fixed;
+    height: 80px;
+    width: 100%;
+    /* background-color: red; */
+}
+
+header img {
+    float: left;
+    height: 60px;
+    padding: 10px 5px;
+    margin-left: 30px;
+}
+
+header ul {
+    float: right;
+    margin-top: 20px;
+    margin-right: 35px;
+    /* background-color: aqua; */
+}
+
+header ul li {
+    display: inline-block;
+    text-align: center;
+    width: 80px;
+    margin: 0 5px;
+    padding: 10px;
+    font-weight: 600;
+    /* background-color: yellowgreen; */
+}
+
+#nav-btn {
+    display: none;
+}
+
+header ul li a {
+    text-decoration: none;
+    color: white;
+}
+
+#body {
+    /* margin: 20px; */
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    padding: 40px;
+    transform: translate(-50%, -50%);
+}
+
+footer {
+    bottom: 10px;
+    position: fixed;
+    text-align: center;
+    width: 100%;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+footer #languages a {
+    padding: 0px 5px;
+}
+
+.fast-transition {
+    position: relative;
+    /* For positioning the pseudo-element */
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
+}
+
+.fast-transition::before {
+    /* Position the pseudo-element. */
+    content: ' ';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 10px;
+    /* Create the box shadow at expanded size. */
+    box-shadow: 0 0 10px 0 rgb(255, 255, 255, 0.5);
+    /* Hidden by default. */
+    opacity: 0;
+    transition: opacity 250ms;
+}
+
+.fast-transition:hover::before {
+    /* Show the pseudo-element on hover. */
+    opacity: 1;
+}
+
+
+/* Mobile */
+
+@media screen and (max-width: 600px) {
+    header ul {
+        display: none;
+    }
+    #nav-btn {
+        display: block;
+        float: right;
+        padding: 25px;
+        margin-right: 25px;
+        cursor: pointer;
+    }
+    #nav-btn i {
+        font-size: 25px;
+    }
+}
+
+@media screen and (min-width: 600px) {
+    #navbar-mobile {
+        display: none!important;
+    }
+}
+
+#navbar-mobile {
+    display: none;
+}
+
+#navbar-mobile.show {
+    display: block;
+}
+
+.frost {
+    backdrop-filter: blur(3px);
+}
+
+button.small {
+    padding: 5px 10px;
+    margin-top: 5px;
+    border-radius: 25px;
+}
+
+button {
+    color: rgba(0, 0, 0, 0.75);
+    font-family: 'pjs';
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: none;
+    vertical-align: middle;
+    font-weight: bold;
+    transition: all 250ms;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 10px rgb(0 0 0 / 50%);
+}
+
+button:hover {
+    color: rgba(255, 255, 255);
+    background-color: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 10px rgb(255 255 255 / 50%);
+}

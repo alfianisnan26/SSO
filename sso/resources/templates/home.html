@@ -1,0 +1,42 @@
+{% extends "base.html" %} {% block extendmenu %}
+<li class="menu_list"><a href="{% url 'logout'%}">{{str.logout}}</a></li>
+{% endblock extendmenu %} {% block head %}
+<link rel="stylesheet" href="/static/assets/css/home.css" /> {% endblock head %} {% block body_raw %} {% endblock body_raw %} {% block body %}
+<h1 id="h-hello">
+    <span id="hello">{{str.hello}},</span><br>{{user.name}}
+</h1>
+<div id="profile" class="clearfix">
+    <div id="profile-left">
+        <div id="profile-pic">
+            <img src="{{user.url_pic}}" id="profile-photos" alt="{{user.name}}">
+
+            <div id="profile-role">
+                <p class="bg-{{user.role}}">{{user.rolename}}</p>
+            </div>
+
+        </div>
+        <div id="profile-status">
+            ● {{str.online}}
+        </div>
+    </div>
+    <div id="profile-right">
+        <div id="profile-menu">
+            {% for menu in menus %}
+            <a href="{{menu.url}}" class="btn-menu">
+                <div class="menu-wrap fast-transition frost">
+                    <div class="btn-icon" style="background-color:{{menu.color}};">
+                        <i class="{{menu.icon}}"></i>
+                    </div>
+                    <div class="btn-label">
+                        {{menu.name}}
+                    </div>
+                    <div class="btn-left">
+                        <i class="fa-solid fa-angle-right"></i>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock body %}

@@ -1,0 +1,20 @@
+{% extends "login.html" %} {% block loginform %}
+
+<div id="login-socmed">
+    <div id="socmed-btns-wrapper">
+        <div id="socmed-btns">
+            {% for socmed in socmeds%}
+            <a href="{{socmed.link}}?next={{next}}">
+                <div class="socmed-btn fast-transition" style="color:{{socmed.color}}; background-color:{{socmed.bg_color}}">
+                    <img id="google-btn" alt="{{socmed.name}} sign-in" src={{socmed.icon}} />
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+
+    </div>
+    <h2>{{str.lwysma}}</h2>
+</div>
+{% endblock loginform %} {% block scripts%}
+<script src="/static/assets/js/login-smart.js"></script>
+{% endblock scripts%}

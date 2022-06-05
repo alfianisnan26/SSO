@@ -1,0 +1,157 @@
+#hello {
+    font-weight: 200;
+}
+
+#h-hello {
+    font-size: 40px;
+}
+
+#profile-pic {
+    position: relative;
+}
+
+#profile-photos {
+    border-radius: 50%;
+    height: 150px;
+    width: 150px;
+    object-fit: cover;
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(3px);
+}
+
+#profile-role {
+    position: absolute;
+    bottom: -5px;
+    width: 100%;
+}
+
+#profile-role p {
+    border-radius: 10px;
+    width: fit-content;
+    padding: 8px 15px;
+    margin: 0 auto;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.bg-STUDENT {
+    background: linear-gradient(to right, #0093DD, #044ED8);
+}
+
+.bg-STAFF {
+    background: linear-gradient(to right, #FF5858, #FF1818);
+}
+
+.bg-TEACHER {
+    background: linear-gradient(to right, #6FCF97, #219653);
+}
+
+.bg-GUEST {
+    background: linear-gradient(to right, #F2C94C, #F2994A);
+}
+
+.bg-ALUMNI {
+    background: linear-gradient(to right, #d862ff, #c518ff);
+}
+
+#profile-status {
+    margin-top: 20px;
+    color: #1AE915
+}
+
+#profile-left {
+    float: left;
+    padding: 10px
+}
+
+#profile-right {
+    position: relative;
+    float: right;
+    top: 0
+}
+
+.clearfix {
+    overflow: auto;
+}
+
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+#profile-network {
+    text-align: end;
+    padding: 0 10px;
+}
+
+#profile-network p {
+    margin: 0;
+    font-size: 10px;
+}
+
+.btn-icon,
+.btn-label,
+.btn-left {
+    display: inline-block;
+    color: white;
+    text-decoration: none;
+    vertical-align: middle;
+    font-size: 15px;
+}
+
+.btn-icon {
+    float: left
+}
+
+.btn-label {
+    margin: 5px auto;
+    font-weight: bold;
+}
+
+.btn-left {
+    float: right
+}
+
+.btn-menu .menu-wrap {
+    width: 250px;
+    border-radius: 10px;
+    height: 30px;
+    background-color: rgba(255, 255, 255, 0.15);
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+.btn-icon,
+.btn-left {
+    padding: 5px;
+    height: 20px;
+    width: 20px;
+    border-radius: 10px;
+}
+
+#profile-menu {
+    padding: 10px;
+}
+
+@media screen and (max-width: 600px) {
+    #h-hello {
+        font-size: 25px;
+    }
+}
+
+@media screen and (max-width: 530px) {
+    #profile-left {
+        text-align: center;
+        float: none;
+        margin: auto;
+    }
+    #profile-right {
+        text-align: center;
+        float: none;
+        margin: auto;
+    }
+    #profile-network {
+        text-align: center;
+    }
+}

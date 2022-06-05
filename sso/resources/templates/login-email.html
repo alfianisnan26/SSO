@@ -1,0 +1,27 @@
+{% extends "login.html" %} {% block loginform %}
+
+<div id="login-form">
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="/?next={{ next }}" />
+        <div class="input-wrapper">
+            <input placeholder="{{str.eun}}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{str.eun_detail}}" class="input" id="uid" type="name" name="uid">
+            <i class="fa-solid fa-user"></i>
+        </div>
+        <div class="input-wrapper">
+            <input placeholder="{{str.password}}" class="input" id="password" type="password" name="password">
+            <i class="fa-solid fa-lock"></i>
+        </div>
+        <div id="btn-wrapper" class="clearfix">
+            <a id="to-socmed" href="{{url_smart_login}}?next={{next}}" class="fast-transition">
+                <i class="fa-solid fa-angle-left"></i>
+            </a>
+            <input class="btn" type="submit" value="{{str.login}}">
+        </div>
+        <div id="login-footer" class="clearfix">
+            <a href="/account/forgot_password">{{str.forgot_password}}</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

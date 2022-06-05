@@ -1,0 +1,98 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html style="background-image: linear-gradient(to bottom, #050A1EBF, #050A1EFF), url('/api/res/bg/?e=20');">
+
+<head>
+    <!-- {{redirect}} -->
+    {% if redirect%}
+    <meta http-equiv="refresh" content="3;url={{redirect}}" /> {% endif %}
+    <link rel="stylesheet" href="/static/assets/css/base.css">
+    <link rel="stylesheet" href="/static/assets/css/components/tooltip.css">
+    <link rel="stylesheet" href="/static/assets/css/components/toast.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <meta name="description" content="{{title}}">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="{{title}}">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://kit.fontawesome.com/8807965ae6.js" crossorigin="anonymous"></script>
+
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/static/assets/res/apple-touch-icon-57x57.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/static/assets/res/apple-touch-icon-114x114.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/static/assets/res/apple-touch-icon-72x72.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/static/assets/res/apple-touch-icon-144x144.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="60x60" href="/static/assets/res/apple-touch-icon-60x60.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="/static/assets/res/apple-touch-icon-120x120.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="76x76" href="/static/assets/res/apple-touch-icon-76x76.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/static/assets/res/apple-touch-icon-152x152.png" />
+    <link rel="icon" type="image/png" href="/static/assets/res/favicon-196x196.png" sizes="196x196" />
+    <link rel="icon" type="image/png" href="/static/assets/res/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/png" href="/static/assets/res/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/static/assets/res/favicon-16x16.png" sizes="16x16" />
+    <link rel="icon" type="image/png" href="/static/assets/res/favicon-128.png" sizes="128x128" />
+    <meta name="application-name" content="{{title}}" />
+    <meta name="msapplication-TileColor" content="#FFFFFF" />
+    <meta name="msapplication-TileImage" content="/static/assets/res/mstile-144x144.png" />
+    <meta name="msapplication-square70x70logo" content="/static/assets/res/mstile-70x70.png" />
+    <meta name="msapplication-square150x150logo" content="/static/assets/res/mstile-150x150.png" />
+    <meta name="msapplication-wide310x150logo" content="/static/assets/res/mstile-310x150.png" />
+    <meta name="msapplication-square310x310logo" content="/static/assets/res/mstile-310x310.png" />
+
+    <title>{% block title %}{% endblock title %}{{str.main_title}}</title>
+    {% block head %}{% endblock head %}
+</head>
+
+<body>
+    <header>
+        <a href="{% url 'home'%}"><img src="/static/assets/res/favicon-128.png" alt="{{str.organization}}"></a>
+        <ul>
+            <li class="menu_list"><a href="{% url 'about'%}">{{str.about}}</a></li>
+            <li class="menu_list"><a href="{% url 'help'%}">{{str.help}}</a></li>
+            {% block extendmenu %}{% endblock extendmenu %}
+        </ul>
+        <ul id="navbar-mobile">
+            <li class="menu_list"><a href="{% url 'about'%}">{{str.about}}</a></li>
+            <li class="menu_list"><a href="{% url 'help'%}">{{str.help}}</a></li>
+        </ul>
+        <div id="nav-btn">
+            <i onclick="toggleNav()" class="fa-solid fa-bars"></i>
+        </div>
+    </header>
+    {% block body_raw%}{%endblock body_raw%}
+    <div id="body">
+        {% block body %}{% endblock body %}
+    </div>
+    <footer>
+        <div id="copyright">
+            <p>©{{str.cc}} - {{str.suborganization}}</p>
+        </div>
+        <div id="languages">
+            {% for lang in langs %}
+            <a href="{% url 'set_lang' lang=lang.id %}?next={{referer}}">{{lang.name}}</a> {% endfor %}
+        </div>
+    </footer>
+
+    <div class="toast_wrapper">
+        {% if not toasts == None %} {% for toast in toasts %}
+        <div show='{{toast.show}}' toast-body='{{toast.body}}' timeout='{{toast.timeout}}' class="toast frost" role="alert" aria-live="assertive" aria-atomic="true" style="background-color: {{ toast.color }}">
+            <div class="toast-header">
+                <strong class="me-auto">{{ toast.header }}</strong>
+                <small class="text-muted"></small>
+                <i class="fa fa-times-circle btn-toast " aria-hidden="true "></i>
+                <!-- <button type="button " class="btn-close " data-bs-dismiss="toast "></button> -->
+            </div>
+            <div class="toast-body"></div>
+        </div>
+        {% endfor %} {% endif %}
+    </div>
+
+    <script type="text/javascript " src="/static/assets/js/popper.min.js "></script>
+    <script type="text/javascript " src="/static/assets/plugin/bootstrap5/js/bootstrap.bundle.min.js "></script>
+    <script type="text/javascript " src="/static/assets/js/base.js "></script>
+</body>
+
+</html>
