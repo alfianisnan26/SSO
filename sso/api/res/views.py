@@ -15,7 +15,10 @@ class BackgroundView(APIView):
     def get(self, request):
         try:
             if(not request.COOKIES.get("bg_uuid")):
-                bg = random.sample(list(Background.objects.all()), 1)[0]
+                bg = Background.objects.filter(is_active=True)
+                if(not bg.exists()):
+                    return HttpResponse(status=HTTP_404_NOT_FOUND)
+                bg = random.sample(list(bg), 1)[0]
                 resp = HttpResponse(bg.image, content_type="image/jpeg")
                 try:
                     expires = request.query_params["e"]

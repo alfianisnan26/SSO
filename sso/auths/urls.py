@@ -24,7 +24,7 @@ urlpatterns = [
     path('auth/oauth/token/', TokenView.as_view(), name="token"),
     path('auth/oauth/authorize/', AuthorizationView.as_view(), name="authorize" ),
     # path("auth/oauth/", include('oauth2_provider.urls', namespace='oauth2_provider')),
-    path('auth/handler/<str:provider>/<str:do>', OauthCallback.as_view(), name = "oauth2-handler"),
-    path('auth/<str:provider>/', OauthLogin.as_view(), name = "oauth2-login"),
+    path('auth/social/handler/', OauthCallback.as_view(), name = "social-handler"),
+    path('auth/social/<str:provider>/', OauthLogin.as_view(), name = "social-login"),
     path("", WelcomeView.as_view(), name="home"),
 ]

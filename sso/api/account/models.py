@@ -74,7 +74,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     
     objects = UserManager()
-    is_active = models.BooleanField('Aktif', null=False, blank=False, default=False, help_text=__("Active"))
+    is_active = models.BooleanField('Aktif', null=False, blank=False, default=True, help_text=__("Active"))
     uuid = models.CharField(max_length=100, default=uuid4, primary_key=True, unique=True, verbose_name='UUID', editable=False, help_text=__('UUID'))
     password = models.CharField(_("password"), max_length=128)
     password_last_change = models.DateTimeField('Perubahan kata sandi',null=True, blank=True, help_text=__("Password last change"))
@@ -83,12 +83,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     eid = models.CharField('NIS/NIP', unique=True, max_length=64, null=True, blank=True, help_text=__("EID"))
     username = models.CharField('Username', max_length=70, unique=True, blank=True, null=True, help_text=__("Username"))
     user_type = models.CharField('Peran pengguna',max_length=10, choices = USER_TYPE, null=True, default='GUEST')
-    permission_type = models.CharField('Jenis pengguna', max_length=5, choices=PERMISSION_TYPE)
+    permission_type = models.CharField('Jenis pengguna', default='none', max_length=5, choices=PERMISSION_TYPE)
     email = models.EmailField(unique=True, help_text=__("Email"))
     phone = models.CharField('Telepon',max_length=16, blank=True, null=True,help_text=__("Phone"))
     avatar = ProcessedImageField(verbose_name='File foto',
         upload_to=upload_avatar,
-        format='JPEG',
+        format='PNG',
         processors=[ResizeToFit(1920, 1080)],
         options={'quality': 85}, blank=True, null=True)
     created_at = models.DateTimeField('Dibuat pada', auto_now_add=True, help_text=__("Created at"))
@@ -152,7 +152,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             if(self.password_type == None or self.password_type == ""):
                 self.password_type = "USER"
             try:
-                self.avatar = ImageFile(io.BytesIO(self._avatar), name='avatar.jpg')
+                self.avatar = ImageFile(io.BytesIO(self._avatar), name='avatar.png')
             except:
                 self.avatar = None
             pass
@@ -198,18 +198,3 @@ def default_start_time():
     start = now.replace(hour=22, minute=0, second=0, microsecond=0)
     return start if start > now else start + timedelta(days=1)  
 
-class SocialMediaAccount(models.Model):
-    AVAILABLE_PROVIDER = [
-        ('FB', 'Facebook'),
-        ('TW', 'Twitter'),
-        ('GG', 'Google')
-    ]
-    uid = models.CharField(max_length=128, null=False,blank=False, verbose_name='UID')
-    uname = models.CharField(max_length=128, null=True,blank=True, default="", verbose_name='Username')
-    upic = models.URLField(null=True, blank=True, default="", verbose_name='Avatar URL')
-    name = models.CharField(max_length=128, null=True, blank=True, default="", verbose_name='Name')
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="social")
-    provider = models.CharField(max_length=4, choices=AVAILABLE_PROVIDER)
-    created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(auto_now=True)
-    last_login = models.DateTimeField()

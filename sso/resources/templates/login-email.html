@@ -13,10 +13,12 @@
             <i class="fa-solid fa-lock"></i>
         </div>
         <div id="btn-wrapper" class="clearfix">
+            {% if social_available == 'True' %}
             <a id="to-socmed" href="{{url_smart_login}}?next={{next}}" class="fast-transition">
                 <i class="fa-solid fa-angle-left"></i>
             </a>
-            <input class="btn" type="submit" value="{{str.login}}">
+            {% endif %}
+            <input class="btn {% if not social_available == 'True' %}only_email{% endif %}" type="submit" value="{{str.login}}">
         </div>
         <div id="login-footer" class="clearfix">
             <a href="/account/forgot_password">{{str.forgot_password}}</a>

@@ -1,7 +1,10 @@
 from django.conf import settings
+from django.urls import reverse
 from django_auth_ldap.backend import LDAPBackend
+from oauth2_provider.models import Application
 
 from sso.api.account.ldap import LDAP
+from sso.auths.models import SocialOauthProvider
 
 # from sso.api.account.utils import LDAPManager
 
@@ -99,4 +102,53 @@ class Toast:
         
         self.context.append(out)
         return out
-        
+
+def populate_sop_from_env(*args, **kwargs):
+    index = 1
+    for provider, v in {
+        "facebook" : [
+            settings.SOCIAL_AUTH_FACEBOOK_KEY,
+            settings.SOCIAL_AUTH_FACEBOOK_SECRET
+        ],
+        "twitter" : [
+            settings.SOCIAL_AUTH_TWITTER_KEY,
+            settings.SOCIAL_AUTH_TWITTER_SECRET
+        ],
+        "google" : [
+            settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY,
+            settings.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
+        ],
+    }.items():
+        if not ( v[0]  == "" or  v[1] == ""):
+            SocialOauthProvider(
+                provider=provider,
+                key=v[0],
+                secret=v[1],
+                description="(Auto-generated)",
+                order=index
+            ).save()
+            index += 1
+
+def reverse_sop_from_env(*args, **kwargs):
+    SocialOauthProvider.objects.filter(description__icontains='(Auto-generated)').delete()
+
+def populate_application_oauth(*args, **kwargs):
+    kwargs = {
+        'client_id':'FXBPpK0ZFNCO945Drpd8NPNGelB0TsH61YN8q8Wt',
+        'client_secret':'WANzFbl6D6NeLkrT6r7EfDiuCaCYSsSQx9kHRmvZzUAlJmwd1oy6SLkfBkn3Dl0SSHUs4lrURWvxCVEK5kAoXBZEkW2Xg4e42YpnvVcLYquRMExgtlCuivhw9zANrIzU',
+        'client_type':"confidential",
+        'authorization_grant_type':"authorization-code",
+        'redirect_uris':f'https://mail.{settings.MAIN_DOMAIN}/index.php/login/oauth',
+        'name':'Webmail (Auto-generated)',
+        'skip_authorization': True
+    }
+    Application(**kwargs).save()
+    print("\n\nPlease set your webmail Oauth configuration data imediately\n")
+    for i in kwargs:
+        print(i, kwargs[i], sep = " : ")
+    print('oauth_auth_uri :', 'https://sso.' + settings.MAIN_DOMAIN + reverse('authorize'))
+    print('oauth_token_uri :', "https://sso." + settings.MAIN_DOMAIN + reverse('token'))
+    print("\n")
+
+def reverse_application_oauth(*args, **kwargs):
+    Application.objects.filter(name__icontains='(Auto-generated)').delete()

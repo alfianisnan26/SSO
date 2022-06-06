@@ -4,6 +4,7 @@ from django.urls import reverse
 import oauth2_provider
 from requests import request
 from sso.api.account.models import User
+from sso.auths.models import ProviderManager, SocialOauthProvider
 from sso.auths.utils import UserLoginData
 from sso.auths.utils import Toast
 from sso.lang.lang import Str
@@ -36,9 +37,12 @@ class LoginView(views.LoginView):
         return super().post(request, *args, **kwargs)
 
     def dispatch(self, request, *args, **kwargs):
+        self.social_available = SocialOauthProvider.objects.filter(is_active=True).exists()
         if(request.user.is_authenticated):
             return redirect('home')
-    
+        elif(not self.social_available and request.path == reverse('login')):
+            return redirect('login-email')
+            
         self.strs = Str(request)
         self.queries = request.GET
 
@@ -58,42 +62,19 @@ class LoginView(views.LoginView):
             toasts.create(f"str:{state}", type=state.split("_")[0].upper(), timeout=5)
         except:
             pass
-
-
+        print(self.social_available)
         context = self.strs.setContext({
+                    "social_available" : str(self.social_available),
                     "toasts":toasts.context,
-                    "next" : next, 
                     "url_smart_login" : "/login/",
-                    "socmeds" : [
-                        {
-                            "link" : "/auth/google/",
-                            "name" : "google",
-                            "icon" : "/static/assets/icons/gg.png",
-                            "color": "black",
-                            "bg_color": "white",
-                        },
-                        {
-                            "link" : "/auth/facebook/",
-                            "name" : "facebook",
-                            "icon" : '/static/assets/icons/fb.png',
-                            "color": "white",
-                            "bg_color": "#3b5998",
-                        },
-                        {
-                            "link" : "/auth/twitter/",
-                            "name" : "twitter",
-                            "icon" : '/static/assets/icons/tw.png',
-                            "color": "white",
-                            "bg_color": "#1DA1F2",
-                        },
-                        {
-                            "link" : "/login/email/",
-                            "name" : "twitter",
-                            "icon" : "/static/assets/icons/em.png",
-                            "color": "grey",
-                            "bg_color": "white",
-                        }
-                    ]
+                    "logins" : ProviderManager.getSocialLoginContext(next) + [{
+                        "link" : reverse('login-email') + f"?next={next}",
+                        "name" : "Email",
+                        "slug" : "email",
+                        "icon" : "/static/assets/icons/em.png",
+                        "color": "grey",
+                        "bg_color": "white",
+                    }]
                 })
 
         return context

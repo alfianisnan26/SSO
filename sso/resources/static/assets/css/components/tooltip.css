@@ -20,10 +20,12 @@
     font-size: 0.875rem;
     word-wrap: break-word;
     opacity: 0;
+    transition: opacity 250ms;
 }
 
 .tooltip.show {
     opacity: 0.9;
+    transition-delay: 500ms;
 }
 
 .tooltip .tooltip-arrow {

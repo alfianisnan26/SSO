@@ -3,10 +3,10 @@
 <div id="login-socmed">
     <div id="socmed-btns-wrapper">
         <div id="socmed-btns">
-            {% for socmed in socmeds%}
-            <a href="{{socmed.link}}?next={{next}}">
-                <div class="socmed-btn fast-transition" style="color:{{socmed.color}}; background-color:{{socmed.bg_color}}">
-                    <img id="google-btn" alt="{{socmed.name}} sign-in" src={{socmed.icon}} />
+            {% for login in logins%}
+            <a href="{{login.link}}">
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{str.login_with}} {{login.name}}" class="socmed-btn fast-transition" style="color:{{login.color}}; background-color:{{login.bg_color}}">
+                    <img id="single-socmed-btn" alt="{{login.slug}} sign-in" src={{login.icon}} />
                 </div>
             </a>
             {% endfor %}

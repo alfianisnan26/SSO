@@ -7,13 +7,14 @@ from uuid import uuid4
 import os
 
 def upload_image(instance, filename):
-    return os.path.join('res', 'bg', str(instance.uuid) + filename.split('.')[-1] )
+    return os.path.join('res', 'bg', str(instance.uuid) + '.webp')
 
 class Background(models.Model):
+    is_active = models.BooleanField('Enable', default=True)
     uuid = models.CharField(max_length=100, default=uuid4, primary_key=True, unique=True, verbose_name='UUID')
     image = ProcessedImageField(
         upload_to=upload_image,
-        format='JPEG',
+        format='WEBP',
         processors=[ResizeToFit(1920, 1080)],
         options={'quality': 85}, blank=False, null=False)
     name = models.CharField(max_length=64, blank=True, null=True, default="")
@@ -45,5 +46,4 @@ class Background(models.Model):
     thumbnail_tag.allow_tags = True
 
     def save(self, *args, **kwargs):
-        print(type(self.image))
         super(Background, self).save(*args, **kwargs)

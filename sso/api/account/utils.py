@@ -20,7 +20,6 @@ def upload_avatar(instance, filename):
         for file in os.listdir(full_path):
             if("avatar" in file):
                 os.remove(full_path + "/" + file)
-    file_ext = filename.split('.')[-1]
     file = os.path.join('users', instance.uuid, filename)
     return file
 
