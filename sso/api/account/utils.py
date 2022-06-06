@@ -63,17 +63,6 @@ DEFAULT_PASSWORD_SCHEME = 'SSHA512'
 HASHES_WITHOUT_PREFIXED_PASSWORD_SCHEME = ['NTLM']
 # ------------------------------------------------------------------
 
-def __str2bytes(s) -> bytes:
-    """Convert `s` from string to bytes."""
-    if isinstance(s, bytes):
-        return s
-    elif isinstance(s, str):
-        return s.encode()
-    elif isinstance(s, (int, float)):
-        return str(s).encode()
-    else:
-        return bytes(s)
-
 # Return list of modification operation.
 def mail_to_user_dn(mail):
     """Convert email address to ldap dn of normail mail user."""
@@ -116,50 +105,57 @@ def get_days_of_today():
     except:
         return 0
 
-def ldif_mailuser(user, quota):
+def ldif_mailuser(user, quota=settings.DEFAULT_EMAIL_QUOTA):
     # Append timestamp in maildir path
     DATE = time.strftime('%Y.%m.%d.%H.%M.%S')
     TIMESTAMP_IN_MAILDIR = ''
     if APPEND_TIMESTAMP_IN_MAILDIR:
         TIMESTAMP_IN_MAILDIR = '-%s' % DATE
 
-    username = user.username
-
-    mail = username + '@' + MAIN_DOMAIN
-    dn = mail_to_user_dn(mail)
+    dn = mail_to_user_dn(user.email)
 
     maildir_domain = MAIN_DOMAIN.lower()
     if HASHED_MAILDIR is True:
-        str1 = str2 = str3 = username[0]
-        if len(username) >= 3:
-            str2 = username[1]
-            str3 = username[2]
-        elif len(username) == 2:
-            str2 = str3 = username[1]
+        str1 = str2 = str3 = user.username[0]
+        if len(user.username) >= 3:
+            str2 = user.username[1]
+            str3 = user.username[2]
+        elif len(user.username) == 2:
+            str2 = str3 = user.username[1]
 
-        maildir_user = "%s/%s/%s/%s%s/" % (str1, str2, str3, username, TIMESTAMP_IN_MAILDIR, )
+        maildir_user = "%s/%s/%s/%s%s/" % (str1, str2, str3, user.username, TIMESTAMP_IN_MAILDIR, )
         mailMessageStore = maildir_domain + '/' + maildir_user
     else:
-        mailMessageStore = "%s/%s%s/" % (MAIN_DOMAIN, username, TIMESTAMP_IN_MAILDIR)
+        mailMessageStore = "%s/%s%s/" % (MAIN_DOMAIN, user.username, TIMESTAMP_IN_MAILDIR)
 
     homeDirectory = STORAGE_BASE_DIRECTORY + '/' + mailMessageStore
     mailMessageStore = STORAGE_NODE + '/' + mailMessageStore
-
+    # "username": "sn",
+    # "full_name": "cn",
+    # "email":"mail",
+    # "password":"userPassword",
+    # "user_type":"employeeType",
+    # "phone":"mobile",
+    # "eid":"employeeNumber",
+    # "permission_type":"domainGlobalAdmin",
+    # "_avatar":"jpegPhoto",
+    # "_is_active" : "accountStatus",
     _ldif = {
-        'accountStatus' : "active",
+        'accountStatus' : "active" if user.is_active else "inactive",
+        'mobile' : user.phone,
         'objectClass': ['inetOrgPerson', 'mailUser', 'shadowAccount', 'amavisAccount'],
-        'mail': mail,
+        'mail': user.email,
         'userPassword': user.password,
         'mailQuota': quota,
         'cn': user.full_name,
-        'sn': username,
-        'uid': username,
+        'sn': user.username,
+        'uid': user.username,
         'employeeNumber':user.eid,
         'employeeType':user.user_type,
         'mailboxFolder': "Maildir",
         'mailboxFormat': "maildir",
         'shadowLastChange' : get_days_of_today(),
-        'domainGlobalAdmin': "yes" if user.is_superuser else "no",  
+        'domainGlobalAdmin': user.permission_type,  
         'storageBaseDirectory': STORAGE_BASE,
         'mailMessageStore': mailMessageStore,
         'homeDirectory': homeDirectory,
@@ -180,7 +176,18 @@ def ldif_mailuser(user, quota):
         'amavisLocal': 'TRUE',
     }
 
-    return dn, _ldif
+    data_mod = {}
+    for k,v in _ldif.items():
+        try:
+            if(isinstance(v, list)):
+                data_mod[k] = [val.encode('utf-8') for val in v]
+            else: data_mod[k] = [v.encode('utf-8')]
+        except:
+            pass
+
+    
+    
+    return dn, data_mod
 
 # class LDAPManager:
 #     def start() -> LDAPObject:

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+import datetime
 from pathlib import Path
 import os
 import ldap
@@ -191,7 +192,61 @@ SOCIAL_AUTH_FACEBOOK_SECRET = env("FACEBOOK_SECRET")
 SOCIAL_AUTH_TWITTER_KEY = env("TWITTER_KEY")
 SOCIAL_AUTH_TWITTER_SECRET = env("TWITTER_SECRET")
 
-
+SOCIAL_OAUTH2_PARAMETER = {
+    "facebook": {
+        'name' : "Facebook",
+        'scope': ['email','public_profile','user_photos','user_link','user_birthday'],
+        'token_url' : 'https://graph.facebook.com/oauth/access_token',
+        'user_info_url' : 'https://graph.facebook.com/v12.0/me?fields=id,name,picture,email',
+        'auth_url' : 'https://www.facebook.com/dialog/oauth',
+        "icon" : '/static/assets/icons/fb.png',
+        "color": "white",
+        "bg_color": "#3b5998",
+        "map":{
+            "uname":"email",
+            "uid":"id",
+            "name":"name"
+        }
+        
+    },
+    "google" : {
+        'name' : 'Google',
+        'scope' : ['openid','https://www.googleapis.com/auth/userinfo.email','https://www.googleapis.com/auth/userinfo.profile',],
+        'token_url' : "https://www.googleapis.com/oauth2/v4/token",
+        'user_info_url' : "https://www.googleapis.com/oauth2/v1/userinfo",
+        'auth_url' : "https://accounts.google.com/o/oauth2/v2/auth",
+        "icon" : "/static/assets/icons/gg.png",
+        "color": "black",
+        "bg_color": "white",
+        "map":{
+            "uname":"email",
+            "uid":"id",
+            "name":"name"
+        }
+    },
+    "twitter" : {
+        "name" : "Twitter",
+        'scope' : ['tweet.read', 'users.read'],
+        'token_url' : 'https://api.twitter.com/2/oauth2/token',
+        "user_info_url" : "https://api.twitter.com/2/users/me",
+        "auth_url" : "https://twitter.com/i/oauth2/authorize",
+        "icon" : '/static/assets/icons/tw.png',
+        "color": "white",
+        "bg_color": "#1DA1F2",
+        "optional_auth_kwargs" : {
+            'code_challenge':'r9gBkX2uP0Ztubf0pmGCtAEJ2r-tCBTDkbJyQKfKvDU',
+            'code_challenge_method':'S256'
+        },
+        "optional_token_kwargs" : {
+            'code_verifier':'gmz4ZMFJL7yyYowvSGNqzjxUXTvj0up00vhTwg-sbERcfYIoSdifqXY6_ASOAQ2mbe197mbuVg-3PMYrqgMHaKbrtGMGjJARQTCVicED0O53W-NqjM7z_XsQi8UgdaKo',
+        },
+        "map":{
+            "uname":"email",
+            "uid":"id",
+            "name":"name"
+        }
+    }
+}
 
 # LDAP Configuration
 
@@ -216,6 +271,7 @@ AUTH_LDAP_USER_ATTR_MAP = {
     "permission_type":"domainGlobalAdmin",
     "_avatar":"jpegPhoto",
     "_is_active" : "accountStatus",
+    "_password_last_change" : "shadowLastChange"
     }
 
 # AUTH_LDAP_PROFILE_ATTR_MAP = {
@@ -234,9 +290,10 @@ AUTH_LDAP_BIND_AS_AUTHENTICATING_USER = True
 # AUTH_LDAP_GROUP_TYPE = GroupOfNamesType()
 # AUTH_LDAP_GROUP_SEARCH =
 
+DEFAULT_EMAIL_QUOTA = "524288"
 
 # OAUTH
-PKCE_REQUIRED = False
+PKCE_REQUIRED = True
 AUTHORIZATION_CODE_EXPIRE_SECONDS = 600
 LOGIN_URL = "/login/?state=alert_must_login"
 

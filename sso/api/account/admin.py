@@ -23,8 +23,8 @@ class AvatarFilter(SimpleListFilter):
 
 class UserAdmin(admin.ModelAdmin):
      list_display=['username','is_active','full_name', 'last_login','thumbnail_tag','user_type','eid','email',  'created_at', 'modified_at', 'password_last_change', 'password_type','permission_type']
-     exclude = ['user_permissions', 'is_superuser']
-     readonly_fields = ('uuid','email','image_tag',  'last_login', 'created_at', 'modified_at', 'password_last_change', 'password_type','password')
+     exclude = ['user_permissions', 'is_superuser', 'password']
+     readonly_fields = ('uuid','email','image_tag',  'last_login', 'created_at', 'modified_at', 'password_last_change', 'password_type')
      list_filter = ('is_active','user_type','permission_type','last_login', 'password_last_change','password_type', AvatarFilter,'groups')
      search_fields = ["email", "full_name", "username", 'eid']
      actions = ['reset_password', 'activate_user', 'deactivate_user', 'elevate_user','deelevate_user']
@@ -55,6 +55,10 @@ class UserAdmin(admin.ModelAdmin):
           queryset.update(permission_status='none')
           self.message_user(request, f'{len(queryset)} pengguna dikembalikan menjadi standar', messages.SUCCESS)
 
+     def delete_queryset(self, request, queryset):
+          for i in queryset:
+               i.delete()
+          
      
 
 

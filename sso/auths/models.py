@@ -13,61 +13,7 @@ from requests_oauthlib.compliance_fixes import facebook_compliance_fix
 from sso.api.account.serializers import UserSerializer
 
 class ProviderManager:
-    available = {
-        "facebook": {
-            'name' : "Facebook",
-            'scope': ['email','public_profile','user_photos','user_link','user_birthday'],
-            'token_url' : 'https://graph.facebook.com/oauth/access_token',
-            'user_info_url' : 'https://graph.facebook.com/v12.0/me?fields=id,name,picture,email',
-            'auth_url' : 'https://www.facebook.com/dialog/oauth',
-            "icon" : '/static/assets/icons/fb.png',
-            "color": "white",
-            "bg_color": "#3b5998",
-            "map":{
-                "uname":"email",
-                "uid":"id",
-                "name":"name"
-            }
-            
-        },
-        "google" : {
-            'name' : 'Google',
-            'scope' : ['openid','https://www.googleapis.com/auth/userinfo.email','https://www.googleapis.com/auth/userinfo.profile',],
-            'token_url' : "https://www.googleapis.com/oauth2/v4/token",
-            'user_info_url' : "https://www.googleapis.com/oauth2/v1/userinfo",
-            'auth_url' : "https://accounts.google.com/o/oauth2/v2/auth",
-            "icon" : "/static/assets/icons/gg.png",
-            "color": "black",
-            "bg_color": "white",
-            "map":{
-                "uname":"email",
-                "uid":"id",
-                "name":"name"
-            }
-        },
-        "twitter" : {
-            "name" : "Twitter",
-            'scope' : ['tweet.read', 'users.read'],
-            'token_url' : 'https://api.twitter.com/2/oauth2/token',
-            "user_info_url" : "https://api.twitter.com/2/users/me",
-            "auth_url" : "https://twitter.com/i/oauth2/authorize",
-            "icon" : '/static/assets/icons/tw.png',
-            "color": "white",
-            "bg_color": "#1DA1F2",
-            "optional_auth_kwargs" : {
-                'code_challenge':'challenge',
-                'code_challenge_method':'plain'
-            },
-            "optional_token_kwargs" : {
-                'code_verifier':'challenge',
-            },
-            "map":{
-                "uname":"email",
-                "uid":"id",
-                "name":"name"
-            }
-        }
-    }
+    available = settings.SOCIAL_OAUTH2_PARAMETER
 
     def v(self, key):
         return self.available[self.obj.provider][key]
@@ -117,8 +63,11 @@ class ProviderManager:
                         client_secret=self.obj.secret,
                         code = self.request.query_params["code"],
                         **kwargs)
-        data = h.get(self.v('user_info_url'))
-        return data.json()
+        data = h.get(self.v('user_info_url')).json()
+        out = {}
+        for k,v in self.v('map').items():
+            out[k] = data[v]
+        return out
 
     def redirect_authorize(self):
         try:
@@ -150,15 +99,15 @@ class SocialOauthProvider(models.Model):
 
 class SocialAccountRegister(models.Model):
 
-    uid = models.CharField(max_length=128, null=False,blank=False, verbose_name='id')
+    uid = models.CharField(max_length=128, null=False,blank=False, verbose_name='ID')
     uname = models.CharField(max_length=128, null=True,blank=True, default="", verbose_name='Username or Email')
     name = models.CharField(max_length=128, null=True, blank=True, default="", verbose_name='Name')
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="social")
     provider = models.ForeignKey(to=SocialOauthProvider, on_delete=models.CASCADE)
 
     registered_at = models.DateTimeField(auto_now_add=True)
-    last_login = models.DateTimeField()
-
+    last_login = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField('Enable', default=True)
     def __str__(self) -> str:
         return self.user.username
 
@@ -172,6 +121,8 @@ class SocialAccountRegister(models.Model):
 
     def login(*args, **kwargs):
         data = ProviderManager(**kwargs).user_data()
-        return data
+        print(data)
+        provider = SocialOauthProvider.objects.get(provider=kwargs.get('provider'), is_active=True)
+        return SocialAccountRegister.objects.filter(provider=provider, uid=data['uid'])
 
     

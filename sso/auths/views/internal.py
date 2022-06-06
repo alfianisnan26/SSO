@@ -34,7 +34,10 @@ class LoginView(views.LoginView):
         uld = UserLoginData(request, post=True)
         request.POST._mutable = True
         request.POST['username'] = uld.get_email()
-        return super().post(request, *args, **kwargs)
+        out = super().post(request, *args, **kwargs)
+        if(not out.status_code == 302):
+            return redirect(reverse('login-email') + "?" + request.META['QUERY_STRING'] + "&state=error_cannot_login")
+        return out
 
     def dispatch(self, request, *args, **kwargs):
         self.social_available = SocialOauthProvider.objects.filter(is_active=True).exists()
@@ -52,17 +55,16 @@ class LoginView(views.LoginView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            next = self.queries["next"]
+            next = urllib.parse.quote(self.queries["next"])
         except:
             next = "/"
 
         toasts = Toast()
         try:
             state = self.queries["state"]
-            toasts.create(f"str:{state}", type=state.split("_")[0].upper(), timeout=5)
+            toasts.create(f"str:{state}", header = 'str:cannot_login' if state == 'error_cannot_login' or state == 'error_msyacw' else None, type=state.split("_")[0].upper(), timeout=5)
         except:
             pass
-        print(self.social_available)
         context = self.strs.setContext({
                     "social_available" : str(self.social_available),
                     "toasts":toasts.context,
@@ -95,7 +97,6 @@ class WelcomeView(View):
             )
         except Exception as e:
             next = ''
-            print(e)
         user:User = request.user
         menus:list = [
             {
@@ -128,7 +129,7 @@ class WelcomeView(View):
         return Str(request).render('home.html', context={
         "menus" : menus,   
         "toasts": toasts.context,
-        "redirect" : urllib.parse.unquote(next),
+        "redirect" : next, # urllib.parse.unquote(next),
         "user":{
             'name':user.full_name,
             "role":user.user_type,

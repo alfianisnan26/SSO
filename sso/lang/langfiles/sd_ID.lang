@@ -34,4 +34,6 @@ ALUMNI=Alumni
 TEACHER=Guru
 STAFF=Staff
 GUEST=Tamu
+cannot_login=Teu tiasa lebet
 error_access_denied=Teu di pasihan aksés
+error_cannot_login=Pastikeun id sareng sandi anjeun leres.<br>ID anjeun tiasa ngagunakeun Surélék, Ngaran pamaké, NIS, jeung NIP.

@@ -5,7 +5,7 @@ import ldap.modlist as modlist
 import hashlib
 from django.contrib.auth.hashers import PBKDF2PasswordHasher
 
-from sso.api.account.utils import MAIN_DOMAIN, ldif_mailuser
+from sso.api.account.utils import MAIN_DOMAIN, ldif_mailuser, mail_to_user_dn
 
 class LDAP:
     URI = settings.AUTH_LDAP_SERVER_URI
@@ -14,6 +14,8 @@ class LDAP:
     MAIN_DOMAIN = settings.MAIN_DOMAIN
     BASE_DN = "ou=Users,domainName=" + MAIN_DOMAIN + ","+ settings.LDAP_BASEDN
     SCOPE_SUBTREE = ldap.SCOPE_SUBTREE
+
+    IGNORED_ATTR = ['enabledService', 'homeDirectory', 'mailboxFolder', 'mailboxFormat', 'mailMessageStore', 'objectClass', 'storageBaseDirectory', 'amavisLocal']
 
     def __init__(self) -> None:
         self.h = ldap.initialize(LDAP.URI)
@@ -45,13 +47,24 @@ class LDAP:
     def get_dn(user):
         return ",".join([f"mail={user}", LDAP.BASE_DN])
 
+    def delete_user(self, user):
+        self.bind()
+        error = True
+        try:
+            dn = mail_to_user_dn(user.email)
+            self.h.delete_s(dn)
+            error = False
+        except Exception as e:
+            print(e)
+        self.unbind()
+        return error
+
     def save_user(self, user):
         self.bind()
-        dn = LDAP.get_dn(user)
+        dn, ldif =  ldif_mailuser(user)
         try:
-            ldif = self.h.search_s(dn, LDAP.SCOPE_SUBTREE)
-        except:
-            dn, ldif =  ldif_mailuser(user, "524288")
-        
-        print(ldif, dn)
+            dn, ldif_old = self.h.search_s(dn, LDAP.SCOPE_SUBTREE, "(mail=*)", None)[0]
+            self.h.modify_s(dn, modlist.modifyModlist(ldif_old,ldif, ignore_attr_types=LDAP.IGNORED_ATTR))
+        except Exception as e:
+            self.h.add_s(dn,  modlist.addModlist(ldif))
         self.unbind()

@@ -1,24 +1,12 @@
-{% extends "base.html" %}
-{% block title %}{{str.login}} - {% endblock title%}
-
-{% block extendmenu %}
+{% extends "base.html" %} {% block title %}{{str.login}} - {% endblock title%} {% block extendmenu %}
 <li class="menu_list"><a href="{% url 'guest'%}">{{str.guest}}</a></li>
-{% endblock extendmenu %}
-
-{% block head %}
-    <link rel="stylesheet" href="/static/assets/css/login.css"/>
-{% endblock head %}
-
-{% block body %}
+{% endblock extendmenu %} {% block head %}
+<link rel="stylesheet" href="/static/assets/css/login.css" /> {% endblock head %} {% block body %}
 
 <h1 id="h-login">
     {{str.welcome_to_sso_portal}}<br>{{str.organization}}
 </h1>
 <div id="login-box">
-    {% block loginform %}
-    {% endblock loginform %}
+    {% block loginform %} {% endblock loginform %}
 </div>
-{% block scripts %}
-{% endblock scripts %}
-
-{% endblock body %}
+{% block scripts %} {% endblock scripts %} {% endblock body %}

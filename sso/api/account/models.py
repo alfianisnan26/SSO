@@ -14,6 +14,7 @@ from hurry.filesize import size, verbose
 from django.templatetags.static import static
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
+import pytz
 from .variables import get as __
 from sso.api.account.ldap import LDAP
 
@@ -77,7 +78,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField('Aktif', null=False, blank=False, default=True, help_text=__("Active"))
     uuid = models.CharField(max_length=100, default=uuid4, primary_key=True, unique=True, verbose_name='UUID', editable=False, help_text=__('UUID'))
     password = models.CharField(_("password"), max_length=128)
-    password_last_change = models.DateTimeField('Perubahan kata sandi',null=True, blank=True, help_text=__("Password last change"))
+    password_last_change = models.DateField('Perubahan kata sandi',null=True, blank=True, help_text=__("Password last change"))
     password_type = models.CharField('Jenis password tersetel', max_length=4, choices=PASS_TYPE,help_text=__("Password type"))
     full_name = models.CharField('Nama lengkap',max_length=70, default="")
     eid = models.CharField('NIS/NIP', unique=True, max_length=64, null=True, blank=True, help_text=__("EID"))
@@ -115,6 +116,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             self.is_staff = False
     
     def save(self, *args, **kwargs):
+        print("SAVING USER DATA...")
         if(not self.phone == None and self.phone[0] == "0"):
             self.phone = "+62" + self.phone[1:]
 
@@ -138,19 +140,20 @@ class User(AbstractBaseUser, PermissionsMixin):
                 self.password_type = "EID"
                 
             if(self.password != user.password):
-                self.password_last_change = datetime.now()
+                self.password_last_change = datetime.now(tz=pytz.UTC)
                 if(not password_reset):
                     self.password_type = "USER"
         except:
-            self.password_last_change = datetime.now()
+            self.password_last_change = datetime.now(tz=pytz.UTC)
         
         self.full_name = " ".join(list(map(lambda i: i.capitalize(),self.full_name.split(' '))))
-
+        
+        if(self.password_type == None or self.password_type == ""):
+            self.password_type = "USER"
         try:
             # FROM LDAP
             self.is_active = self._is_active == "active"
-            if(self.password_type == None or self.password_type == ""):
-                self.password_type = "USER"
+            self.password_last_change = self._password_last_change
             try:
                 self.avatar = ImageFile(io.BytesIO(self._avatar), name='avatar.png')
             except:
@@ -159,12 +162,12 @@ class User(AbstractBaseUser, PermissionsMixin):
             print(self._groups)
         except:
             # MANUAL
-            # LDAP().save_user(self)
-            pass
+            LDAP().save_user(self)
         super(User, self).save(*args, **kwargs)
     
     def delete(self, *args, **kwargs):
-        # LDAPManager.deleteUser(self.email)
+        print("DELETING USER")
+        LDAP().delete_user(self)
         super(User, self).delete(*args, **kwargs)
 
     def thumbnail_tag(self):
@@ -194,7 +197,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         
 
 def default_start_time():
-    now = datetime.now()
+    now = datetime.now(tz=pytz.UTC)
     start = now.replace(hour=22, minute=0, second=0, microsecond=0)
     return start if start > now else start + timedelta(days=1)  
 

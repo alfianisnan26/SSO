@@ -76,7 +76,7 @@ class Str:
         context = self.translateContext(context)
         context["str"] = self.data
         if(not hasattr(context, "referer")):
-            context["referer"] = self.request.build_absolute_uri()
+            context["referer"] = urllib.parse.quote(self.request.build_absolute_uri())
         if(not hasattr(context, "next")):
             try:
                 context["next"] = urllib.parse.quote(self.request.GET["next"])

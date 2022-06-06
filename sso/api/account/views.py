@@ -1,10 +1,8 @@
 from rest_framework.views import APIView
-
-from django.shortcuts import redirect
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import status
+from rest_framework import status, permissions
+from sso.api.account.models import User
+from sso.api.account.serializers import UserSerializer
 from sso.auths.utils import UserLoginData
 
 from sso.api.account.utils import MAIN_DOMAIN
@@ -20,9 +18,11 @@ class TokenObtainPairView(APIView):
                 return Response({'detail': str(user)})
         return Response({"error": uld.error}, status=status.HTTP_400_BAD_REQUEST)
 
-class UserView(APIView):
+class UserMeView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
     def get(self, request):
-        pass
+        serializer = UserSerializer(request.user).data
+        return Response(serializer)
 
     def post(self, request):
         pass

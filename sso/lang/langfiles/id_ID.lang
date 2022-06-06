@@ -35,4 +35,6 @@ ALUMNI=Alumni
 TEACHER=Guru
 STAFF=Staff
 GUEST=Tamu
+cannot_login=Tidak dapat masuk
 error_access_denied=Akses tidak diberikan
+error_cannot_login=Pastikan ID dan Kata Sandi kamu sudah benar.<br>ID kamu dapat berupa Email, Username, NIS, atau NIP.

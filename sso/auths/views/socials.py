@@ -1,5 +1,7 @@
+from datetime import datetime
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
+import pytz
 from sso.auths.models import ProviderManager, SocialAccountRegister, SocialOauthProvider
 from sso.lang.lang import Str
 from urllib.parse import urlencode, quote
@@ -24,6 +26,8 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.http import HttpResponse 
 from django.views.static import serve
 from django.template.loader import render_to_string
+from django.contrib.auth import login
+
 import os
 
 class OauthLogin(views.APIView):
@@ -51,11 +55,22 @@ class OauthCallback(views.APIView):
         data = {}
         error = request.query_params.get('error')
         if(error != None):
-            print(error)
             return redirect(reverse('login') + f"?state=error_{error}&next={state.get('next')}")
         if(do == "login"):
-            data = SocialAccountRegister.login(**state)
+            try:
+                obj = SocialAccountRegister.login(**state)
+                if(obj.exists()):
+                    obj:SocialAccountRegister = obj.first()
+                    obj.last_login = datetime.now(tz=pytz.UTC)
+                    obj.save()
+                    login(request, obj.user, backend=settings.AUTHENTICATION_BACKENDS[0])
+                    return redirect(reverse('home') + f"?next={state.get('next')}")
+                else:
+                    return redirect(reverse('login') + f"?state=error_msyacw&next={state.get('next')}")
+            except Exception as e:
+                print(e)
+                return redirect(reverse('login') + f"?state=error_clwsa&next={state.get('next')}")
         elif(do == "register"):
             data = SocialAccountRegister.regist(**state)
-
+    
         return Response(data=data)

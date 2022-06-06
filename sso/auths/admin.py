@@ -26,17 +26,19 @@ class SocialOauthProviderAdmin(admin.ModelAdmin):
 admin.site.register(SocialOauthProvider, SocialOauthProviderAdmin)
 
 class SocialMediaAccoutAdmin(admin.ModelAdmin):
-    def has_add_permission(self, request):
-        return False
+    # def has_add_permission(self, request):
+    #     return False
 
     
-    list_filter = ['provider', 'last_login', 'registered_at']
-    search_fields = ['user']
-    list_display=['user','provider', 'uid', 'last_login', 'registered_at']
-    def get_readonly_fields(self, request, obj=None):
-        return list(set(
-            [field.name for field in self.opts.local_fields] +
-            [field.name for field in self.opts.local_many_to_many]
-        ))
+    list_filter = ['provider', 'is_active', 'last_login', 'registered_at']
+    search_fields = ['name','uname','id', 'provider__provider', 'user__full_name']
+    list_display=['user','provider','is_active', 'uid', 'last_login', 'registered_at']
+    readonly_fields = ['last_login', 'registered_at']
+    # TODO SET TO READ ONLY
+    # def get_readonly_fields(self, request, obj=None):
+    #     return list(set(
+    #         [field.name for field in self.opts.local_fields] +
+    #         [field.name for field in self.opts.local_many_to_many]
+    #     ))
 
 admin.site.register(SocialAccountRegister, SocialMediaAccoutAdmin)
