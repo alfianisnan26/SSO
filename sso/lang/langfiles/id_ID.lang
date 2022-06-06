@@ -35,3 +35,4 @@ ALUMNI=Alumni
 TEACHER=Guru
 STAFF=Staff
 GUEST=Tamu
+error_access_denied=Akses tidak diberikan

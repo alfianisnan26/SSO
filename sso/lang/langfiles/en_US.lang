@@ -40,3 +40,4 @@ ALUMNI=Alumni
 TEACHER=Teacher
 STAFF=Staff
 GUEST=Guest
+error_access_denied=Access Denied

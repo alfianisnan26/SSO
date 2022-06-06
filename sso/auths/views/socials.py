@@ -1,7 +1,6 @@
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
-from sso.auths.models import ProviderManager, SocialMediaAccount, SocialOauthProvider
-from sso.auths.serializers import SocialMediaAccountSerializer
+from sso.auths.models import ProviderManager, SocialAccountRegister, SocialOauthProvider
 from sso.lang.lang import Str
 from urllib.parse import urlencode, quote
 from django.conf import settings
@@ -39,19 +38,24 @@ class OauthLogin(views.APIView):
         return ProviderManager(request, provider, state).redirect_authorize()
 
 class OauthCallback(views.APIView):
-    def fetch_params(self, *args, **kwargs):
-        for i in self.request.query_params["state"].split("&"):
-            val = i.split("=")
-            kwargs[val[0]] = val[1]
+    def fetch_state(request):
+        kwargs = {'request': request}
+        for i in request.query_params["state"].split("&"):
+            j = i.split("=")
+            kwargs[j[0]] = j[1]
         return kwargs
 
     def get(self, request): 
-        kwarg = self.fetch_params(request=request)  
-        do = kwarg.get('do')
-       
+        state:dict = OauthCallback.fetch_state(request) 
+        do = state.get('do')
+        data = {}
+        error = request.query_params.get('error')
+        if(error != None):
+            print(error)
+            return redirect(reverse('login') + f"?state=error_{error}&next={state.get('next')}")
         if(do == "login"):
-            SocialMediaAccount.login(**kwarg)
+            data = SocialAccountRegister.login(**state)
         elif(do == "register"):
-            SocialMediaAccount.regist(**kwarg)
+            data = SocialAccountRegister.regist(**state)
 
-        return Response()
+        return Response(data=data)

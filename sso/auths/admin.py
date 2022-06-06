@@ -2,7 +2,7 @@ from django import forms
 from django.db import models
 from django.contrib import admin
 from django.contrib import messages
-from sso.auths.models import ProviderManager, SocialMediaAccount, SocialOauthProvider
+from sso.auths.models import ProviderManager, SocialAccountRegister, SocialOauthProvider
 
 class KeySecretAdminForm(forms.ModelForm):
     def redirect_uri(self, request):
@@ -30,13 +30,13 @@ class SocialMediaAccoutAdmin(admin.ModelAdmin):
         return False
 
     
-    list_filter = ['provider', 'last_login']
+    list_filter = ['provider', 'last_login', 'registered_at']
     search_fields = ['user']
-    list_display=['user','provider', 'uid', 'last_login', 'created_at', 'modified_at']
+    list_display=['user','provider', 'uid', 'last_login', 'registered_at']
     def get_readonly_fields(self, request, obj=None):
         return list(set(
             [field.name for field in self.opts.local_fields] +
             [field.name for field in self.opts.local_many_to_many]
         ))
 
-admin.site.register(SocialMediaAccount, SocialMediaAccoutAdmin)
+admin.site.register(SocialAccountRegister, SocialMediaAccoutAdmin)

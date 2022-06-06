@@ -115,8 +115,8 @@ def populate_sop_from_env(*args, **kwargs):
             settings.SOCIAL_AUTH_TWITTER_SECRET
         ],
         "google" : [
-            settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY,
-            settings.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
+            settings.SOCIAL_AUTH_GOOGLE_KEY,
+            settings.SOCIAL_AUTH_GOOGLE_SECRET
         ],
     }.items():
         if not ( v[0]  == "" or  v[1] == ""):
