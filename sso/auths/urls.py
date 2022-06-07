@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from django.urls import include, path
 from oauth2_provider.views import AuthorizationView
 from sso.auths.views.internal import LoginView, LogoutView, WelcomeView
-from sso.auths.views.oauth import GrantView, TokenView
+from sso.auths.views.oauth import GrantView, TokenViewOauth
 from sso.auths.views.socials import OauthCallback, OauthLogin
 from sso.lang.lang import Str
 
@@ -22,7 +22,7 @@ urlpatterns = [
     path("logout/", LogoutView.as_view() , name="logout"),
     path('menu/about/', lambda r : Str(r).render("about.html", context={"authenticated":str(r.user.is_authenticated)}), name="about"),
     path('menu/help/', lambda r : Str(r).render("help.html", context={"authenticated":str(r.user.is_authenticated)}), name="help"),
-    path('auth/oauth/token/', TokenView.as_view(), name="token"),
+    path('auth/oauth/token/', TokenViewOauth.as_view(), name="token"),
     path('auth/oauth/authorize/', AuthorizationView.as_view(), name="authorize" ),
     path('auth/oauth/grant/<app>', GrantView.as_view(), name="grant" ),
     path('auth/social/handler/', OauthCallback.as_view(), name = "social-handler"),

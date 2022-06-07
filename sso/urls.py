@@ -15,6 +15,7 @@ urlpatterns = [
     path("admin/logout/", lambda r: redirect("logout")),
     path("admin/login/", lambda r: redirect(reverse("login") + "?next=/admin/&state=alert_must_login")),
     path('api/', include('sso.api.urls')),
+    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path("", include('sso.auths.urls')),
 ] + i18n_patterns(path('admin/', admin.site.urls),prefix_default_language=False)
 
