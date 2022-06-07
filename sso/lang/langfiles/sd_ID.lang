@@ -37,3 +37,7 @@ GUEST=Tamu
 cannot_login=Teu tiasa lebet
 error_access_denied=Teu di pasihan aksés
 error_cannot_login=Pastikeun id sareng sandi anjeun leres.<br>ID anjeun tiasa ngagunakeun Surélék, Ngaran pamaké, NIS, jeung NIP.
+console_loading=Ngamuat konsol
+console_loading_info=Ngantosan muat konsol kanggé ngédit profil anjeun
+go_to_console=Ka konsol
+dashboard=Dasbor

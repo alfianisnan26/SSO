@@ -68,10 +68,15 @@ class Toast:
     ALERT = "ALERT"
     INFO = "INFO"
     SUCCESS = "SUCCESS"
+    id = 0
     def __init__(self) -> None:
         self.context = []
-    def create(self, body, type="INFO", header=None, show=True, timeout=None) -> None:
+    def create(self, body, type="INFO", header=None, show=True, timeout=None, id=None) -> None:
         out = {}
+        if(id==None):
+            id = f"toast-{type.lower()}-{Toast.id}"
+            Toast.id += 1
+
         if(type == "INFO"):
             out = {
                 "header": header or "str:info",
@@ -96,6 +101,7 @@ class Toast:
             return {}
         out["body"] = body
         out["show"] = str(show)
+        out["id"] = id
 
         if(timeout != None):
             out["timeout"] = str(timeout)
@@ -134,8 +140,8 @@ def reverse_sop_from_env(*args, **kwargs):
 
 def populate_application_oauth(*args, **kwargs):
     kwargs = {
-        'client_id':'FXBPpK0ZFNCO945Drpd8NPNGelB0TsH61YN8q8Wt',
-        'client_secret':'WANzFbl6D6NeLkrT6r7EfDiuCaCYSsSQx9kHRmvZzUAlJmwd1oy6SLkfBkn3Dl0SSHUs4lrURWvxCVEK5kAoXBZEkW2Xg4e42YpnvVcLYquRMExgtlCuivhw9zANrIzU',
+        'client_id': settings.EMAIL_DEFAULT_CLIENT_ID,
+        'client_secret': settings.EMAIL_DEFAULT_CLIENT_SECRET,
         'client_type':"confidential",
         'authorization_grant_type':"authorization-code",
         'redirect_uris':f'https://mail.{settings.MAIN_DOMAIN}/index.php/login/oauth',
@@ -148,7 +154,22 @@ def populate_application_oauth(*args, **kwargs):
         print(i, kwargs[i], sep = " : ")
     print('oauth_auth_uri :', 'https://sso.' + settings.MAIN_DOMAIN + reverse('authorize'))
     print('oauth_token_uri :', "https://sso." + settings.MAIN_DOMAIN + reverse('token'))
-    print("\n")
 
+    kwargs = {
+        'client_id': settings.APP_DEFAULT_CLIENT_ID,
+        'client_secret':settings.APP_DEFAULT_CLIENT_SECRET,
+        'client_type':"confidential",
+        'authorization_grant_type':"authorization-code",
+        'redirect_uris':f'https://app.{settings.MAIN_DOMAIN}/handler',
+        'name':'Webapp (Auto-generated)',
+        'skip_authorization': True
+    }
+    Application(**kwargs).save()
+    print("\nPlease set your webapp Oauth configuration data imediately\n")
+    for i in kwargs:
+        print(i, kwargs[i], sep = " : ")
+    print('oauth_auth_uri :', 'https://app.' + settings.MAIN_DOMAIN + reverse('authorize'))
+    print('oauth_token_uri :', "https://app." + settings.MAIN_DOMAIN + reverse('token'))
+    print()
 def reverse_application_oauth(*args, **kwargs):
     Application.objects.filter(name__icontains='(Auto-generated)').delete()

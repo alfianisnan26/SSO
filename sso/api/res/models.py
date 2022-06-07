@@ -1,9 +1,16 @@
+from datetime import datetime, timedelta
+from email.mime import application
+from django.conf import settings
 from django.db import models
+from django.http import HttpRequest
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFit
 from django.utils.html import mark_safe
 from hurry.filesize import size, verbose
 from uuid import uuid4
+from oauth2_provider.models import Application
 import os
 
 def upload_image(instance, filename):
@@ -15,7 +22,7 @@ class Background(models.Model):
     image = ProcessedImageField(
         upload_to=upload_image,
         format='WEBP',
-        processors=[ResizeToFit(800, 800)],
+        processors=[ResizeToFit(1920, 1080)],
         options={'quality': 75}, blank=False, null=False)
     name = models.CharField(max_length=64, blank=True, null=True, default="")
     location_at = models.CharField(max_length=128, blank=True, null=True)
@@ -38,6 +45,11 @@ class Background(models.Model):
     
     def thumbnail_tag(self):
         return mark_safe(f'<div style="width:100px;height:100px;"><img style="object-fit:cover;width:100%;height:100%;" src="{self.image.url}"/></div>')
+
+    def delete(self, *args, **kwargs):
+        path = os.path.join(settings.MEDIA_ROOT, self.image.name)
+        os.remove(path)
+        return super(Background, self).delete(*args, **kwargs)
 
     image_tag.short_description = 'Preview'
     image_tag.allow_tags = True

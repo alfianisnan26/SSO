@@ -163,8 +163,8 @@ footer #languages a {
     display: none;
 }
 
-#navbar-mobile.show {
-    display: block;
+.show {
+    display: block!important;
 }
 
 .frost {

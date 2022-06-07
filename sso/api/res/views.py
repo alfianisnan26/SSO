@@ -1,12 +1,14 @@
+from http import client
 import mimetypes
 import os
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.status import HTTP_404_NOT_FOUND
+from rest_framework import status 
 import random
 from http.cookies import SimpleCookie
+from oauth2_provider.models import Application
 
 from sso.api.res.serializers import BackroundSerializer
 from .models import Background
@@ -17,7 +19,7 @@ class BackgroundView(APIView):
             if(not request.COOKIES.get("bg_uuid")):
                 bg = Background.objects.filter(is_active=True)
                 if(not bg.exists()):
-                    return HttpResponse(status=HTTP_404_NOT_FOUND)
+                    return HttpResponse(status=status.HTTP_404_NOT_FOUND)
                 bg = random.sample(list(bg), 1)[0]
                 resp = HttpResponse(bg.image, content_type="image/jpeg")
                 try:
@@ -29,8 +31,9 @@ class BackgroundView(APIView):
                 bg = get_object_or_404(Background, pk=request.COOKIES.get("bg_uuid"))
                 resp = HttpResponse(bg.image, content_type="image/jpeg")
             return resp
-        except:
-            return HttpResponse(status=HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print("Error from bg :", e)
+            return HttpResponse(status=status.HTTP_404_NOT_FOUND)
 
 class BackgroundInfoView(APIView):
     def get(self, request):
@@ -39,6 +42,5 @@ class BackgroundInfoView(APIView):
             serializer = BackroundSerializer(bg)
             return Response(serializer.data)
         else:
-            return Response(status=HTTP_404_NOT_FOUND)
-        
+            return Response(status=status.HTTP_404_NOT_FOUND)
         

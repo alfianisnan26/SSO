@@ -1,17 +1,15 @@
-{% extends "base.html" %} {% block extendmenu %}
-<li class="menu_list"><a href="{% url 'logout'%}">{{str.logout}}</a></li>
-{% endblock extendmenu %} {% block head %}
+{% extends "base.html" %} {% block extendmenu %} {% endblock extendmenu %} {% block head %}
 <link rel="stylesheet" href="/static/assets/css/home.css" /> {% endblock head %} {% block body_raw %} {% endblock body_raw %} {% block body %}
 <h1 id="h-hello">
-    <span id="hello">{{str.hello}},</span><br>{{user.name}}
+    <span id="hello">{{str.hello}},</span><br>{{profile.name}}
 </h1>
 <div id="profile" class="clearfix">
     <div id="profile-left">
         <div id="profile-pic">
-            <img src="{{user.url_pic}}" id="profile-photos" alt="{{user.name}}">
+            <img src="{{profile.url_pic}}" id="profile-photos" alt="{{profile.name}}">
 
             <div id="profile-role">
-                <p class="bg-{{user.role}}">{{user.rolename}}</p>
+                <p class="bg-{{profile.role}}">{{profile.rolename}}</p>
             </div>
 
         </div>
@@ -23,6 +21,11 @@
         <div id="profile-menu">
             {% for menu in menus %}
             <a href="{{menu.url}}" class="btn-menu">
+                {% if menu.preloading%}
+                <div style="display:none;">
+                    <iframe src="{{menu.preloading}}"></iframe>
+                </div>
+                {% endif %}
                 <div class="menu-wrap fast-transition frost">
                     <div class="btn-icon" style="background-color:{{menu.color}};">
                         <i class="{{menu.icon}}"></i>
@@ -34,8 +37,7 @@
                         <i class="fa-solid fa-angle-right"></i>
                     </div>
                 </div>
-            </a>
-            {% endfor %}
+            </a> {% endfor %}
         </div>
     </div>
 </div>

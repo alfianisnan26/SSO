@@ -7,5 +7,6 @@ class BackgroundAdmin(admin.ModelAdmin):
     readonly_fields = ('image_tag', 'uuid')
     exclude = ['thumbnail_tag']
     list_editable = ['is_active']
-    
+
+
 admin.site.register(Background, BackgroundAdmin)

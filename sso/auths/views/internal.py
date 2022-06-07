@@ -1,9 +1,14 @@
+from datetime import datetime, timedelta
+from email.mime import application
 import json
 from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
-import oauth2_provider
+from oauth2_provider.models import Grant, Application
+import pytz
 from requests import request
+from sso import settings
 from sso.api.account.models import User
+
 from sso.auths.models import ProviderManager, SocialOauthProvider
 from sso.auths.utils import UserLoginData
 from sso.auths.utils import Toast
@@ -97,7 +102,18 @@ class WelcomeView(View):
             )
         except Exception as e:
             next = ''
+
+        try:
+            state = request.GET["state"]
+            toasts.create(f"str:{state}", type=state.split("_")[0].upper(), timeout=5)
+        except Exception as e:
+            pass
+
+        app = Application.objects.get(
+                client_id = settings.APP_DEFAULT_CLIENT_ID
+            )
         user:User = request.user
+        
         menus:list = [
             {
                 "name":"str:webmail",
@@ -117,22 +133,24 @@ class WelcomeView(View):
                 "color":"#0093DD",
                 "url":"str:lms_url"
             },
-        ]
-        
-        if(user.is_staff):
-            menus.append({
-                "name":"str:admin",
+            {
+                "preloading" : app.redirect_uris.split(' ')[0],
+                "name":"str:dashboard",
                 "icon":"fa-solid fa-screwdriver-wrench",
                 "color":"#FF1818",
-                "url":"/admin"
-            },)
+                # TODO OAuth Code for App.Smandak
+                "url": reverse('grant', kwargs={'app':app.client_id})
+            }
+        ]
         return Str(request).render('home.html', context={
         "menus" : menus,   
         "toasts": toasts.context,
         "redirect" : next, # urllib.parse.unquote(next),
-        "user":{
+        "authenticated" : str(request.user.is_authenticated),
+        "profile":{
             'name':user.full_name,
             "role":user.user_type,
+            "permission":user.permission_type,
             "rolename":f"str:{user.user_type}",
             "url_pic": user.get_avatar(placeholder=True)
         }})

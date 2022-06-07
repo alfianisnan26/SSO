@@ -1,8 +1,9 @@
 from django.http import HttpRequest
 from django.shortcuts import redirect
 from django.urls import include, path
+from oauth2_provider.views import AuthorizationView
 from sso.auths.views.internal import LoginView, LogoutView, WelcomeView
-from sso.auths.views.oauth import TokenView, AuthorizationView
+from sso.auths.views.oauth import GrantView, TokenView
 from sso.auths.views.socials import OauthCallback, OauthLogin
 from sso.lang.lang import Str
 
@@ -19,10 +20,11 @@ urlpatterns = [
     path("login/email/", LoginView.as_view(template_name='login-email.html', next_page="home") , name="login-email"),
     path("login/", LoginView.as_view(template_name='login-smart.html') , name="login"),
     path("logout/", LogoutView.as_view() , name="logout"),
-    path('menu/about/', lambda r : Str(r).render("about.html"), name="about"),
-    path('menu/help/', lambda r : Str(r).render("help.html"), name="help"),
+    path('menu/about/', lambda r : Str(r).render("about.html", context={"authenticated":str(r.user.is_authenticated)}), name="about"),
+    path('menu/help/', lambda r : Str(r).render("help.html", context={"authenticated":str(r.user.is_authenticated)}), name="help"),
     path('auth/oauth/token/', TokenView.as_view(), name="token"),
     path('auth/oauth/authorize/', AuthorizationView.as_view(), name="authorize" ),
+    path('auth/oauth/grant/<app>', GrantView.as_view(), name="grant" ),
     path('auth/social/handler/', OauthCallback.as_view(), name = "social-handler"),
     path('auth/social/<str:provider>/', OauthLogin.as_view(), name = "social-login"),
     path("", WelcomeView.as_view(), name="home"),

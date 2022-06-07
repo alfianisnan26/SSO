@@ -38,3 +38,7 @@ GUEST=Tamu
 cannot_login=Tidak dapat masuk
 error_access_denied=Akses tidak diberikan
 error_cannot_login=Pastikan ID dan Kata Sandi kamu sudah benar.<br>ID kamu dapat berupa Email, Username, NIS, atau NIP.
+console_loading=Memuat konsol
+console_loading_info=Mencoba memuat konsol yang dapat anda gunakan untuk mengatur profil pribadi anda
+go_to_console=Pergi ke konsol
+dashboard=Dasbor

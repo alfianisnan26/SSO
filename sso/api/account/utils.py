@@ -1,3 +1,5 @@
+import base64
+import io
 import os
 import datetime
 from django.utils.crypto import get_random_string
@@ -14,13 +16,19 @@ from typing import List, Dict
 import re
 import ldif
 
+import random
+import string
+
+def randStr(chars = string.ascii_lowercase + string.ascii_uppercase + string.digits, N=64):
+	return ''.join(random.choice(chars) for _ in range(N))
+
 def upload_avatar(instance, filename):
-    full_path = os.path.join(settings.MEDIA_ROOT, 'users', instance.uuid)
+    full_path = os.path.join(settings.MEDIA_ROOT, 'users', str(instance.uuid), 'avatar')
     if(os.path.exists(full_path)):
         for file in os.listdir(full_path):
             if("avatar" in file):
                 os.remove(full_path + "/" + file)
-    file = os.path.join('users', instance.uuid, filename)
+    file = os.path.join('users', str(instance.uuid), 'avatar', f'avatar-{randStr()}.png')
     return file
 
 # LDAP server address.
@@ -96,6 +104,18 @@ def generate_password(plain_password, scheme=DEFAULT_PASSWORD_SCHEME):
 
     return pw.decode("utf-8")
 
+def data_encoder(_ldif):
+    data_mod ={}
+
+    for k,v in _ldif.items():
+        try:
+            if(isinstance(v, list)):
+                data_mod[k] = [val.encode('utf-8') for val in v]
+            else: data_mod[k] = [v.encode('utf-8')]
+        except Exception as e:
+            print(k, e)
+    return data_mod
+
 def get_days_of_today():
     """Return number of days since 1970-01-01."""
     today = datetime.date.today()
@@ -130,8 +150,7 @@ def ldif_mailuser(user, quota=settings.DEFAULT_EMAIL_QUOTA):
 
     homeDirectory = STORAGE_BASE_DIRECTORY + '/' + mailMessageStore
     # mailMessageStore = STORAGE_NODE + '/' + mailMessageStore
-
-
+    
 
     _ldif = {
         # 'jpegPhoto' : user,
@@ -169,17 +188,16 @@ def ldif_mailuser(user, quota=settings.DEFAULT_EMAIL_QUOTA):
         'shadowLastChange': str(get_days_of_today()),
         'amavisLocal': 'TRUE',
     }
-
-    data_mod = {}
-    for k,v in _ldif.items():
-        try:
-            if(isinstance(v, list)):
-                data_mod[k] = [val.encode('utf-8') for val in v]
-            else: data_mod[k] = [v.encode('utf-8')]
-        except:
-            pass
-
     
+
+    data_mod = data_encoder(_ldif)
+
+    if(not (user.avatar.name == '' or user.avatar.name == None)):
+        try:
+            file = open(os.path.join(settings.MEDIA_ROOT, user.avatar.name), 'rb')
+            data_mod['jpegPhoto'] = [file.read()]
+        except Exception as e:
+            print("HERE" , e)
     
     return dn, data_mod
 

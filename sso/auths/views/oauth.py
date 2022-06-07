@@ -1,9 +1,12 @@
-from audioop import reverse
+
+from datetime import datetime, timedelta
 import json
 from django.http import HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.views import View
 from django.utils.decorators import method_decorator
+import pytz
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -13,37 +16,12 @@ from oauth2_provider.signals import app_authorized
 from oauth2_provider.views.mixins import OAuthLibMixin
 from django.views.decorators.csrf import csrf_exempt
 from oauth2_provider.settings import oauth2_settings
-from oauth2_provider.oauth2_backends import OAuthLibCore
-from oauth2_provider.views import AuthorizationView as AuthorizationViewTemplate
 from oauthlib.oauth2.rfc6749.endpoints.pre_configured import Server
 from oauthlib.common import Request
 from oauth2_provider.models import Application
-# Server.create_token_response
-
-class AuthorizationView(AuthorizationViewTemplate):
-    pass
-    # def get(self, request, *args, **kwargs):
-    #     data = super().get(request, *args, **kwargs)
-    #     print(data.__dict__)
-    #     return data
-    # def get(self, request, *args, **kwargs):
-    #     if(request.user.is_authenticated):
-    #         try:
-    #             data:dict = request.query_params
-    #             if(not data['response_type'] == 'code'):
-    #                 raise Exception('response_type is not support')
-    #             obj = Application.objects.get(
-    #                 client_id=data['client_id'],
-    #                 redirect_uris=data['redirect_uri'],
-    #             )
-    #             return Response(
-    #                 {'data':data,
-    #                 'app':obj.name},
-    #                 status=status.HTTP_302_FOUND)
-    #         except Exception as e:
-    #             return Response({"detail":str(e)},status.HTTP_400_BAD_REQUEST)
-    #     else:
-    #         redirect(reverse('login') + '?next=' + reverse('authorize'))
+from sso import settings
+from sso.api.account.utils import randStr
+from oauth2_provider.models import Grant
 
 @method_decorator(csrf_exempt, name="dispatch")
 class TokenView(OAuthLibMixin, View):
@@ -63,4 +41,23 @@ class TokenView(OAuthLibMixin, View):
                 token = get_access_token_model().objects.get(token=access_token)
                 app_authorized.send(sender=self, request=request, token=token)
         return HttpResponse(content=body, status=status)
-        
+
+class GrantView(APIView):
+    def get(self, request, app):
+        try:
+            app = get_object_or_404(Application, client_id = app)
+            code = randStr(N=30)
+            Grant(
+                user = request.user,
+                code = code,
+                application = app,
+                expires = datetime.now(tz=pytz.UTC) + timedelta(minutes=15),
+                redirect_uri = app.redirect_uris.split(' ')[0],
+                scope = 'read write',
+                code_challenge = settings.APP_DEFAULT_CODE_CHALLENGE,
+                code_challenge_method = settings.APP_DEFAULT_CODE_CHALLENGE_METHOD,
+                claims = '{}'
+            ).save()
+            return redirect( app.redirect_uris.split(' ')[0] + "?code=" + code)
+        except:
+            return redirect(reverse('home') + "?state=error_access_denied")

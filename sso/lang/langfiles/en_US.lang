@@ -43,3 +43,7 @@ GUEST=Guest
 cannot_login=Cannot login
 error_access_denied=Access Denied
 error_cannot_login=Make sure your ID and Password are correct.<br>Your ID could be an Email, an Username, a Student ID, or an Employee ID.
+console_loading=Console is loading
+console_loading_info=Trying to load console for manage your personal account
+go_to_console=Go to console
+dashboard=Dashboard

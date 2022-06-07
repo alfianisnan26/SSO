@@ -1,3 +1,5 @@
+import base64
+import os
 from django.conf import settings
 import ldap
 import ldap.modlist as modlist
@@ -64,7 +66,7 @@ class LDAP:
         dn, ldif =  ldif_mailuser(user)
         try:
             dn, ldif_old = self.h.search_s(dn, LDAP.SCOPE_SUBTREE, "(mail=*)", None)[0]
-            self.h.modify_s(dn, modlist.modifyModlist(ldif_old,ldif, ignore_attr_types=LDAP.IGNORED_ATTR))
+            self.h.modify_s(dn, modlist.modifyModlist(ldif_old, ldif, ignore_attr_types=LDAP.IGNORED_ATTR))
         except Exception as e:
             self.h.add_s(dn,  modlist.addModlist(ldif))
         self.unbind()

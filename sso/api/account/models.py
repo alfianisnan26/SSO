@@ -1,6 +1,8 @@
 from datetime import date, datetime, timedelta
 import io
+import os
 import re
+import shutil
 from uuid import uuid4
 from django.conf import settings
 from django.db import models
@@ -8,7 +10,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.core.files.images import ImageFile
 from imagekit.models import ProcessedImageField
-from imagekit.processors import ResizeToFit
+from imagekit.processors import ResizeToFit, SmartCrop
 from django.utils.html import mark_safe
 from hurry.filesize import size, verbose
 from django.templatetags.static import static
@@ -91,7 +93,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     avatar = ProcessedImageField(verbose_name='File foto',
         upload_to=upload_avatar,
         format='PNG',
-        processors=[ResizeToFit(1920, 1080)],
+        processors=[SmartCrop(600, 800)],
         options={'quality': 85}, blank=True, null=True)
     created_at = models.DateTimeField('Dibuat pada', auto_now_add=True, help_text=__("Created at"))
     modified_at = models.DateTimeField('Diedit pada',auto_now=True, help_text=__("Modified at"))
@@ -121,14 +123,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         try:
             self.is_active = self._is_active == "active"
             self.password_last_change = datetime(1970,1,1,0,0) + timedelta(int(self._password_last_change))
-            print(self.password_last_change)
             try:
-                self.avatar = ImageFile(io.BytesIO(self._avatar), name='avatar.png')
+                self.avatar = ImageFile(io.BytesIO(self._avatar), name=self.avatar.name)
             except:
                 self.avatar = None
-            pass
         except Exception as e:
-            # print(e)
             pass
 
         if(not self.phone == None and self.phone[0] == "0"):
@@ -164,13 +163,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         
         if(self.password_type == None or self.password_type == ""):
             self.password_type = "USER"
-        
-        LDAP().update_user(self)
         super(User, self).save(*args, **kwargs)
+        LDAP().update_user(self)
     
     def delete(self, *args, **kwargs):
         # print("DELETING USER")
         LDAP().delete_user(self)
+        path = os.path.join(settings.MEDIA_ROOT, 'users', self.uuid)
+        shutil.rmtree(path)
         super(User, self).delete(*args, **kwargs)
 
     def thumbnail_tag(self):
