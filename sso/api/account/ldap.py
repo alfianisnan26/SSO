@@ -22,12 +22,12 @@ class LDAP:
         self.h.set_option(ldap.OPT_REFERRALS, 0)
 
     def bind(self):
-        print("BIND")
+        # print("BIND")
         self.h.simple_bind_s(LDAP.DN, LDAP.PASS)
         return self.h
 
     def unbind(self):
-        print("UNBIND")
+        # print("UNBIND")
         self.h.unbind_s()
         return self.h
 
@@ -59,7 +59,7 @@ class LDAP:
         self.unbind()
         return error
 
-    def save_user(self, user):
+    def update_user(self, user):
         self.bind()
         dn, ldif =  ldif_mailuser(user)
         try:

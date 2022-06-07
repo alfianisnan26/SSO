@@ -129,18 +129,12 @@ def ldif_mailuser(user, quota=settings.DEFAULT_EMAIL_QUOTA):
         mailMessageStore = "%s/%s%s/" % (MAIN_DOMAIN, user.username, TIMESTAMP_IN_MAILDIR)
 
     homeDirectory = STORAGE_BASE_DIRECTORY + '/' + mailMessageStore
-    mailMessageStore = STORAGE_NODE + '/' + mailMessageStore
-    # "username": "sn",
-    # "full_name": "cn",
-    # "email":"mail",
-    # "password":"userPassword",
-    # "user_type":"employeeType",
-    # "phone":"mobile",
-    # "eid":"employeeNumber",
-    # "permission_type":"domainGlobalAdmin",
-    # "_avatar":"jpegPhoto",
-    # "_is_active" : "accountStatus",
+    # mailMessageStore = STORAGE_NODE + '/' + mailMessageStore
+
+
+
     _ldif = {
+        # 'jpegPhoto' : user,
         'accountStatus' : "active" if user.is_active else "inactive",
         'mobile' : user.phone,
         'objectClass': ['inetOrgPerson', 'mailUser', 'shadowAccount', 'amavisAccount'],
@@ -156,8 +150,8 @@ def ldif_mailuser(user, quota=settings.DEFAULT_EMAIL_QUOTA):
         'mailboxFormat': "maildir",
         'shadowLastChange' : get_days_of_today(),
         'domainGlobalAdmin': user.permission_type,  
-        'storageBaseDirectory': STORAGE_BASE,
-        'mailMessageStore': mailMessageStore,
+        # 'storageBaseDirectory': STORAGE_BASE,
+        # 'mailMessageStore': mailMessageStore,
         'homeDirectory': homeDirectory,
         'accountStatus': 'active',
         'enabledService': ['internal', 'doveadm', 'lib-storage',

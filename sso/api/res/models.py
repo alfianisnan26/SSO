@@ -15,8 +15,8 @@ class Background(models.Model):
     image = ProcessedImageField(
         upload_to=upload_image,
         format='WEBP',
-        processors=[ResizeToFit(1920, 1080)],
-        options={'quality': 85}, blank=False, null=False)
+        processors=[ResizeToFit(800, 800)],
+        options={'quality': 75}, blank=False, null=False)
     name = models.CharField(max_length=64, blank=True, null=True, default="")
     location_at = models.CharField(max_length=128, blank=True, null=True)
     taken_at = models.DateTimeField(blank=True, null=True)

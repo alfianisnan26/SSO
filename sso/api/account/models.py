@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import io
 import re
 from uuid import uuid4
@@ -42,6 +42,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return username
 
     def reset_password(self):
+        self.password_last_change = date.today()
         if(self.eid == None or self.eid == ""):
             self.password_type = "UUID"
             self.password = generate_password(self.uuid)
@@ -116,7 +117,20 @@ class User(AbstractBaseUser, PermissionsMixin):
             self.is_staff = False
     
     def save(self, *args, **kwargs):
-        print("SAVING USER DATA...")
+        
+        try:
+            self.is_active = self._is_active == "active"
+            self.password_last_change = datetime(1970,1,1,0,0) + timedelta(int(self._password_last_change))
+            print(self.password_last_change)
+            try:
+                self.avatar = ImageFile(io.BytesIO(self._avatar), name='avatar.png')
+            except:
+                self.avatar = None
+            pass
+        except Exception as e:
+            # print(e)
+            pass
+
         if(not self.phone == None and self.phone[0] == "0"):
             self.phone = "+62" + self.phone[1:]
 
@@ -150,23 +164,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         
         if(self.password_type == None or self.password_type == ""):
             self.password_type = "USER"
-        try:
-            # FROM LDAP
-            self.is_active = self._is_active == "active"
-            self.password_last_change = self._password_last_change
-            try:
-                self.avatar = ImageFile(io.BytesIO(self._avatar), name='avatar.png')
-            except:
-                self.avatar = None
-            pass
-            print(self._groups)
-        except:
-            # MANUAL
-            LDAP().save_user(self)
+        
+        LDAP().update_user(self)
         super(User, self).save(*args, **kwargs)
     
     def delete(self, *args, **kwargs):
-        print("DELETING USER")
+        # print("DELETING USER")
         LDAP().delete_user(self)
         super(User, self).delete(*args, **kwargs)
 
