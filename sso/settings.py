@@ -116,7 +116,7 @@ DATABASES = {
         'NAME': env("DB_NAME"),
         'USER': env("DB_USER"),
         'PASSWORD': env("DB_PASS"),
-        'HOST': 'localhost',
+        'HOST': env("DB_HOST"),
         'PORT': '',
     }
 }
@@ -251,7 +251,7 @@ SOCIAL_OAUTH2_PARAMETER = {
 # LDAP Configuration
 
 DOMAIN_NAME = ",".join(list(map(lambda r: "dc=" + r, str(MAIN_DOMAIN).split("."))))
-AUTH_LDAP_SERVER_URI = "ldap://localhost"
+AUTH_LDAP_SERVER_URI = "ldap://" + env('LDAP_HOST')
 AUTH_USER_MODEL = 'account.User'
 
 AUTH_LDAP_BIND_DN = "cn=Manager," + DOMAIN_NAME
