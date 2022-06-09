@@ -8,6 +8,7 @@ import pytz
 from requests import request
 from sso import settings
 from sso.api.account.models import User
+from sso.api.account.serializers import UserMinimalSerializer
 
 from sso.auths.models import ProviderManager, SocialOauthProvider
 from sso.auths.utils import UserLoginData
@@ -47,6 +48,7 @@ class LoginView(views.LoginView):
     def dispatch(self, request, *args, **kwargs):
         self.social_available = SocialOauthProvider.objects.filter(is_active=True).exists()
         if(request.user.is_authenticated):
+            User.update(request)
             return redirect('home')
         elif(not self.social_available and request.path == reverse('login')):
             return redirect('login-email')
@@ -90,6 +92,7 @@ class WelcomeView(View):
     def get(self, request):
         if(not request.user.is_authenticated):
             return redirect('login')
+        User.update(request)
         toasts = Toast()
         try:
             next = request.GET["next"]
@@ -154,3 +157,25 @@ class WelcomeView(View):
             "rolename":f"str:{user.user_type}",
             "url_pic": user.get_avatar(placeholder=True)
         }})
+
+class RegistrationFormView(View):
+    def get(self, request):
+        return Str(request).render('guest.html')
+
+    def post(self, request):
+        data = request.POST
+        try:
+            user = User(
+                full_name = data['name'],
+                eid = data['eid'],
+                phone = data['phone'],
+                avatar = data['avatar'],
+            ).save()
+            return Str(request).render('userme.html', context = UserMinimalSerializer(user).data)
+        except Exception as e:
+            toasts = Toast()
+            if('duplicate key' in str(e)):
+                toasts.create("NIS/NIP sudah teregistrasi sebelumnya,<br>Silahkan hubungi admin.", type=toasts.ERROR)
+            else:
+                toasts.create(str(e), type=toasts.ERROR)
+            return Str(request).render('guest.html', context={'toasts': toasts.context})

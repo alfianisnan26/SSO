@@ -149,7 +149,7 @@ def populate_application_oauth(*args, **kwargs):
         'skip_authorization': True
     }
     Application(**kwargs).save()
-    print("\n\nPlease set your webmail Oauth configuration data imediately\n")
+    print("\n\nPlease set your webmail Oauth configuration data immediately\n")
     for i in kwargs:
         print(i, kwargs[i], sep = " : ")
     print('oauth_auth_uri :', 'https://sso.' + settings.MAIN_DOMAIN + reverse('authorize'))
@@ -165,7 +165,7 @@ def populate_application_oauth(*args, **kwargs):
         'skip_authorization': True
     }
     Application(**kwargs).save()
-    print("\nPlease set your webapp Oauth configuration data imediately\n")
+    print("\nPlease set your webapp Oauth configuration data immediately\n")
     for i in kwargs:
         print(i, kwargs[i], sep = " : ")
     print('oauth_auth_uri :', 'https://app.' + settings.MAIN_DOMAIN + reverse('authorize'))

@@ -1,0 +1,25 @@
+{% extends "base.html" %} {% block extendmenu %}{% endblock extendmenu %} {% block title %}{{str.guest}} - {% endblock title%} {% block head %}
+<link rel="stylesheet" href="/static/assets/css/base.css" /> {% endblock head%} {% block body %}
+<form method="post">
+    <table style='text-align:left'>
+        {% csrf_token %}
+        <tr>
+            <td>Nama Lengkap</td>
+            <td><input type="text" name="name"></td>
+        </tr>
+        <tr>
+            <td>NIS/NIP</td>
+            <td><input type="text" name="eid"></td>
+        </tr>
+        <tr>
+            <td>Nomor Telepon</td>
+            <td><input type="number" name="phone" id=""></td>
+        </tr>
+        <tr>
+            <td>Upload Pas Foto</td>
+            <td><input type="file" name="avatar" id=""></td>
+        </tr>
+    </table>
+    <input type="submit" value="Registrasi">
+</form>
+{% endblock body%}

@@ -1,3 +1,4 @@
+from uuid import uuid4
 from django.conf import settings
 from django.db import models
 from django.http import HttpRequest
@@ -38,6 +39,7 @@ class ProviderManager:
     def __init__(self, request, provider, state='/', *args, **kwargs) -> None:
         self.request = request
         self.state = state
+        self.provider = provider
         self.obj = get_object_or_404(SocialOauthProvider, is_active=True, provider=provider)
 
     def redirect_uri(request:HttpRequest):
@@ -55,7 +57,6 @@ class ProviderManager:
         h = self.session()
         try:
             kwargs = self.v('optional_token_kwargs')
-            print(kwargs)
         except:
             kwargs = {}
 
@@ -64,9 +65,16 @@ class ProviderManager:
                         code = self.request.query_params["code"],
                         **kwargs)
         data = h.get(self.v('user_info_url')).json()
+        
+        if(self.provider == 'twitter'):
+            data = data['data']
+            print(data)
+        
+
         out = {}
         for k,v in self.v('map').items():
             out[k] = data[v]
+        
         return out
 
     def redirect_authorize(self):
@@ -99,6 +107,7 @@ class SocialOauthProvider(models.Model):
 
 class SocialAccountRegister(models.Model):
 
+    uuid = models.CharField(max_length=100, default=uuid4, primary_key=True, unique=True, verbose_name='UUID', editable=False, help_text='UUID')
     uid = models.CharField(max_length=128, null=False,blank=False, verbose_name='ID')
     uname = models.CharField(max_length=128, null=True,blank=True, default="", verbose_name='Username or Email')
     name = models.CharField(max_length=128, null=True, blank=True, default="", verbose_name='Name')
@@ -109,18 +118,17 @@ class SocialAccountRegister(models.Model):
     last_login = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField('Enable', default=True)
     def __str__(self) -> str:
-        return self.user.username
+        return self.user.username + ":" + self.provider.provider
 
     def regist(*args, **kwargs):
         user = get_object_or_404(User, uuid = kwargs.get('user'))
         data = ProviderManager(**kwargs).user_data()
-        return {
-            'user':UserSerializer(user).data,
-            'data':data
-        }
+        provider = SocialOauthProvider.objects.get(provider=kwargs.get('provider'))
+        return SocialAccountRegister(user=user, provider=provider, **data)
 
     def login(*args, **kwargs):
         data = ProviderManager(**kwargs).user_data()
+        # TODO delete print data
         print(data)
         provider = SocialOauthProvider.objects.get(provider=kwargs.get('provider'), is_active=True)
         return SocialAccountRegister.objects.filter(provider=provider, uid=data['uid'])

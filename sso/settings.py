@@ -241,7 +241,7 @@ SOCIAL_OAUTH2_PARAMETER = {
             'code_verifier':'gmz4ZMFJL7yyYowvSGNqzjxUXTvj0up00vhTwg-sbERcfYIoSdifqXY6_ASOAQ2mbe197mbuVg-3PMYrqgMHaKbrtGMGjJARQTCVicED0O53W-NqjM7z_XsQi8UgdaKo',
         },
         "map":{
-            "uname":"email",
+            "uname":"username",
             "uid":"id",
             "name":"name"
         }

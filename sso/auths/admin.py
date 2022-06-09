@@ -33,12 +33,12 @@ class SocialMediaAccoutAdmin(admin.ModelAdmin):
     list_filter = ['provider', 'is_active', 'last_login', 'registered_at']
     search_fields = ['name','uname','id', 'provider__provider', 'user__full_name']
     list_display=['user','provider','is_active', 'uid', 'last_login', 'registered_at']
-    readonly_fields = ['last_login', 'registered_at']
+    # readonly_fields = ['last_login', 'registered_at', 'uuid', 'provider', ]
     # TODO SET TO READ ONLY
-    # def get_readonly_fields(self, request, obj=None):
-    #     return list(set(
-    #         [field.name for field in self.opts.local_fields] +
-    #         [field.name for field in self.opts.local_many_to_many]
-    #     ))
+    def get_readonly_fields(self, request, obj=None):
+        return list(set(
+            [field.name for field in self.opts.local_fields] +
+            [field.name for field in self.opts.local_many_to_many]
+        ))
 
 admin.site.register(SocialAccountRegister, SocialMediaAccoutAdmin)

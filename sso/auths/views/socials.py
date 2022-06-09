@@ -1,34 +1,20 @@
 from datetime import datetime
 from django.http import HttpRequest
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
+from rest_framework import status
 import pytz
+from sso.api.account.models import User
+from sso.api.serializers import SocialAccountRegisterSerializer
 from sso.auths.models import ProviderManager, SocialAccountRegister, SocialOauthProvider
-from sso.lang.lang import Str
-from urllib.parse import urlencode, quote
 from django.conf import settings
-from django.forms import ValidationError
-from django.urls import reverse_lazy
-from rest_framework import views, status
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404, redirect, render
-from rest_framework_simplejwt.views import TokenObtainPairView
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework.reverse import reverse
-from requests_oauthlib import OAuth2Session
-from requests_oauthlib import OAuth1
-from requests_oauthlib.compliance_fixes import facebook_compliance_fix
-import requests
-from rest_framework_simplejwt.tokens import RefreshToken, Token
-from twython import Twython
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from django_auth_ldap.backend import LDAPBackend           
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from django.http import HttpResponse 
-from django.views.static import serve
-from django.template.loader import render_to_string
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from django.contrib.auth import login
-
-import os
+from rest_framework import views
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 class OauthLogin(views.APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -36,26 +22,33 @@ class OauthLogin(views.APIView):
     def get(self, request:HttpRequest, provider):
         state = request.META['QUERY_STRING'] + "&do=login" + "&provider=" + provider
         return ProviderManager(request, provider, state).redirect_authorize()
-    
-    def post(self, request:HttpRequest, provider):
+
+class OauthRegister(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request:HttpRequest, provider):
+        User.update(request)
         state = request.META['QUERY_STRING'] + "&do=register" + "&provider=" + provider + "&user=" + request.user.uuid
         return ProviderManager(request, provider, state).redirect_authorize()
 
 class OauthCallback(views.APIView):
     def fetch_state(request):
         kwargs = {'request': request}
-        for i in request.query_params["state"].split("&"):
+        params = request.query_params["state"].split("&")
+        print(params)
+        for i in [var for var in params if var]:
             j = i.split("=")
             kwargs[j[0]] = j[1]
         return kwargs
 
-    def get(self, request): 
+    def get(self, request):
         state:dict = OauthCallback.fetch_state(request) 
         do = state.get('do')
         data = {}
         error = request.query_params.get('error')
         if(error != None):
             return redirect(reverse('login') + f"?state=error_{error}&next={state.get('next')}")
+        
         if(do == "login"):
             try:
                 obj = SocialAccountRegister.login(**state)
@@ -70,7 +63,19 @@ class OauthCallback(views.APIView):
             except Exception as e:
                 print(e)
                 return redirect(reverse('login') + f"?state=error_clwsa&next={state.get('next')}")
+        
         elif(do == "register"):
-            data = SocialAccountRegister.regist(**state)
-    
+            if(not request.user.is_authenticated):
+                return Response(status=status.HTTP_403_FORBIDDEN)
+            try:
+                data = SocialAccountRegister.regist(**state)
+                data.save()
+                data = SocialAccountRegisterSerializer(data).data
+            except Exception as e:
+                print('ERROR : ', e)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+                
+        if(hasattr(state, 'next')):
+            return redirect(state.get('next'))
+
         return Response(data=data)

@@ -2,9 +2,9 @@ from django.http import HttpRequest
 from django.shortcuts import redirect
 from django.urls import include, path
 from oauth2_provider.views import AuthorizationView
-from sso.auths.views.internal import LoginView, LogoutView, WelcomeView
+from sso.auths.views.internal import LoginView, LogoutView, RegistrationFormView, WelcomeView
 from sso.auths.views.oauth import GrantView, TokenViewOauth
-from sso.auths.views.socials import OauthCallback, OauthLogin
+from sso.auths.views.socials import OauthCallback, OauthLogin, OauthRegister
 from sso.lang.lang import Str
 
 
@@ -16,7 +16,7 @@ def guest_info(request:HttpRequest):
 
 urlpatterns = [
     path('account/forgot_password/', forgot_password, name="forgot-password"),
-    path('account/guest/', guest_info, name="guest"),
+    path('account/guest/', RegistrationFormView.as_view(), name="guest"),
     path("login/email/", LoginView.as_view(template_name='login-email.html', next_page="home") , name="login-email"),
     path("login/", LoginView.as_view(template_name='login-smart.html') , name="login"),
     path("logout/", LogoutView.as_view() , name="logout"),
@@ -27,5 +27,6 @@ urlpatterns = [
     path('auth/oauth/grant/<app>', GrantView.as_view(), name="grant" ),
     path('auth/social/handler/', OauthCallback.as_view(), name = "social-handler"),
     path('auth/social/<str:provider>/', OauthLogin.as_view(), name = "social-login"),
+    path('auth/social/<str:provider>/register/', OauthRegister.as_view(), name = "social-register"),
     path("", WelcomeView.as_view(), name="home"),
 ]

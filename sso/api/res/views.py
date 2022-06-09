@@ -9,12 +9,14 @@ from rest_framework import status
 import random
 from http.cookies import SimpleCookie
 from oauth2_provider.models import Application
+from sso.api.account.models import User
 
 from sso.api.res.serializers import BackroundSerializer
 from .models import Background
 from django.conf import settings
 class BackgroundView(APIView):
     def get(self, request):
+        User.update(request)
         try:
             if(not request.COOKIES.get("bg_uuid")):
                 bg = Background.objects.filter(is_active=True)
@@ -37,6 +39,7 @@ class BackgroundView(APIView):
 
 class BackgroundInfoView(APIView):
     def get(self, request):
+        User.update(request)
         if(request.COOKIES.get("bg_uuid")):
             bg = get_object_or_404(Background, pk=request.COOKIES.get("bg_uuid"))
             serializer = BackroundSerializer(bg)

@@ -98,12 +98,43 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField('Dibuat pada', auto_now_add=True, help_text=__("Created at"))
     modified_at = models.DateTimeField('Diedit pada',auto_now=True, help_text=__("Modified at"))
     USERNAME_FIELD = 'email'
+    last_update = models.DateTimeField('Terakhir terlihat pada', null=True, blank=True)
+
+    def is_online(self):
+        try:
+            return (self.last_update + timedelta(minutes=5)) > datetime.now(tz=pytz.UTC)
+        except Exception as e:
+            return False
+
+    is_online.short_description = 'Online'
+
+    def update(request):
+        try:
+            request.user.update_user()
+        except Exception as e:
+            pass
+
+    def update_user(self, save=True):
+        try:
+            self.last_update = datetime.now(tz=pytz.UTC)
+            if(save): self.save()
+        except Exception as e:
+            pass
 
     class Meta:
         ordering = ['-full_name']
     
     def __str__(self):
         return self.email or self.eid
+
+    def set_password(self, raw_password):
+        self.password = generate_password(raw_password)
+        self._password = raw_password
+        self.password_type = "USER"
+        return self.password
+
+    def check_password(self, raw_password):
+        return LDAP().authenticate(self, raw_password)
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -119,6 +150,10 @@ class User(AbstractBaseUser, PermissionsMixin):
             self.is_staff = False
     
     def save(self, *args, **kwargs):
+
+        if(hasattr(kwargs, 'request')):
+            if(kwargs.get('request').user.id == self.id):
+                self.update_user(save=False)
         
         try:
             self.is_active = self._is_active == "active"
@@ -169,8 +204,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     def delete(self, *args, **kwargs):
         # print("DELETING USER")
         LDAP().delete_user(self)
-        path = os.path.join(settings.MEDIA_ROOT, 'users', self.uuid)
-        shutil.rmtree(path)
+        try:
+            path = os.path.join(settings.MEDIA_ROOT, 'users', self.uuid)
+            shutil.rmtree(path)
+        except Exception as e:
+            print(e)
+
         super(User, self).delete(*args, **kwargs)
 
     def thumbnail_tag(self):

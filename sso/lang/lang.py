@@ -90,6 +90,8 @@ class Str:
         return context
     
     def render(self, template_name:str, context = {}, request = None):
+        if(request == None):
+            request = self.request
         out = html_render(request, template_name=template_name, context=self.setContext(context))
         resp = self.setLang(out)
         return resp

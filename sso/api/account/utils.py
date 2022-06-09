@@ -15,6 +15,7 @@ from subprocess import Popen, PIPE
 from typing import List, Dict
 import re
 import ldif
+from django.contrib.auth.hashers import BasePasswordHasher
 
 import random
 import string
@@ -53,21 +54,10 @@ std = STORAGE_BASE_DIRECTORY.rstrip('/').split('/')
 STORAGE_NODE = std.pop()
 STORAGE_BASE = '/'.join(std)
 
-# Hashed maildir: True, False.
-# Example:
-#   domain: domain.ltd,
-#   user:   zhang (zhang@domain.ltd)
-#
-#       - hashed: d/do/domain.ltd/z/zh/zha/zhang/
-#       - normal: domain.ltd/zhang/
 HASHED_MAILDIR = True
 
-# Default password schemes.
-# Multiple passwords are supported if you separate schemes with '+'.
-# For example: 'SSHA+NTLM', 'CRAM-MD5+SSHA', 'CRAM-MD5+SSHA+MD5'.
 DEFAULT_PASSWORD_SCHEME = 'SSHA512'
 
-# Do not prefix password scheme name in password hash.
 HASHES_WITHOUT_PREFIXED_PASSWORD_SCHEME = ['NTLM']
 # ------------------------------------------------------------------
 
@@ -113,7 +103,8 @@ def data_encoder(_ldif):
                 data_mod[k] = [val.encode('utf-8') for val in v]
             else: data_mod[k] = [v.encode('utf-8')]
         except Exception as e:
-            print(k, e)
+            # print(k, e)
+            pass
     return data_mod
 
 def get_days_of_today():
@@ -200,101 +191,3 @@ def ldif_mailuser(user, quota=settings.DEFAULT_EMAIL_QUOTA):
             print("HERE" , e)
     
     return dn, data_mod
-
-# class LDAPManager:
-#     def start() -> LDAPObject:
-#         l = ldap.initialize(LDAP_URI) 
-#         l.bind(BINDDN, BINDPW) 
-#         return l
-
-#     def deleteUser(mail):
-#         try:
-#             l = LDAPManager.start()
-#             dn = "mail=" + mail +",ou=Users,domainName="+ MAIN_DOMAIN+","+ BASEDN
-#             l.delete_s(dn)
-#             l.unbind_s()
-#             LDAPManager.updateAdminUser(mail, False, without_update_user = True)
-#             return True
-#         except:
-#             return False
-        
-#     def updateEntry(mail, key, value):
-#         print("DATA UPDATE ENTRY", value)
-#         l = ldap.initialize(LDAP_URI) 
-#         l.bind(BINDDN, BINDPW) 
-#         dn = "mail=" + mail +",ou=Users,domainName="+ MAIN_DOMAIN+","+ BASEDN
-#         ldif = l.search_s(dn, ldap.SCOPE_SUBTREE,"(mail=*)", None)[0][1][key]
-#         print(ldif)
-#         ldifs = modlist.modifyModlist({key: ldif}, {key: value})
-#         l.modify_s(dn, ldifs)
-#         l.unbind_s()
-
-#     def saveUser(user):
-#         print("SAVING USER TO LDAP SERVER")
-
-#     def updateFullName(mail, fullname):
-#         LDAPManager.updateEntry(mail, "cn", fullname)
-#         return fullname
-
-#     def updatePassword(mail, password):
-#         password = generate_password_with_doveadmpw(password)
-#         LDAPManager.updateEntry(mail, "userPassword", [password.encode("utf-8")])
-#         return password
-
-#     def updateAdminUser(mail, is_superuser, without_update_user = False):
-#         l = ldap.initialize(LDAP_URI) 
-#         l.bind(BINDDN, BINDPW) 
-#         dn = "cn=admin,ou=Groups,domainName="+ MAIN_DOMAIN+","+ BASEDN
-#         ldif = l.search_s(dn, ldap.SCOPE_SUBTREE,"(cn=*)", None)[0][1]
-#         try:
-#             ldif = ldif["memberUid"]
-#             ldif_old = {"memberUid" : ldif}
-#         except:
-#             ldif_old = {}
-#             ldif = []
-#         try:
-#             ldif.remove(mail.replace("@" + MAIN_DOMAIN, "").encode("utf-8"))
-#         except:
-#             pass
-#         if is_superuser:
-#             ldif.append(mail.replace("@" + MAIN_DOMAIN, "").encode("utf-8"))
-#             if(not without_update_user): LDAPManager.updateEntry(mail, "domainGlobalAdmin", ["yes".encode("utf-8")])
-#         else:
-#             if(not without_update_user):LDAPManager.updateEntry(mail, "domainGlobalAdmin", ["no".encode("utf-8")])
-#         ldifs = modlist.modifyModlist(ldif_old, {"memberUid" : ldif})
-#         l.modify_s(dn, ldifs)
-#         l.unbind_s()
-        
-#     def create(user):
-#         dn, data = ldif_mailuser(user, "524288")
-#         l = ldap.initialize(LDAP_URI) 
-#         l.bind(BINDDN, BINDPW) 
-#         data_mod = {}
-#         for k,v in data.items():
-#             if(isinstance(v, list)):
-#                 data_mod[k] = [val.encode('utf-8') for val in v]
-#             else: data_mod[k] = v.encode('utf-8')
-#         ldifs = modlist.addModlist(data_mod)
-#         l.add_s(dn, ldifs)
-#         l.unbind_s()
-#         if(user.is_superuser == True):
-#             user.is_staff = user.is_superuser
-#             LDAPManager.updateAdminUser(user)
-#         return data
-
-#     def search_eid(eid):
-#         conn = ldap.initialize(LDAP_URI)
-#         conn.set_option(ldap.OPT_REFERRALS, 0)
-#         conn.simple_bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_PASSWORD)
-
-#         basedn = "ou=Users,domainName=" + settings.MAIN_DOMAIN + "," + settings.LDAP_BASEDN
-#         searchScope = ldap.SCOPE_SUBTREE
-#         searchFilter = "employeeNumber=%s" % eid
-        
-#         res = conn.search_s(basedn, searchScope, searchFilter, ['mail'])
-#         try:
-#             return res[0][1]['mail'][0].decode('UTF-8')
-#         except:
-#             return None
-
-    

@@ -1,10 +1,11 @@
+from dataclasses import field
 from django.contrib import messages
 from django.utils.translation import ngettext
 from django.contrib import admin
+from django import forms
 from sso.api.account.models import User
 from django.contrib.admin import SimpleListFilter
 from django.utils.translation import gettext_lazy as _
-
 class AvatarFilter(SimpleListFilter):
      title = _('ketersediaan foto')
      parameter_name = 'avatar'
@@ -22,9 +23,9 @@ class AvatarFilter(SimpleListFilter):
 
 
 class UserAdmin(admin.ModelAdmin):
-     list_display=['username','is_active','full_name', 'last_login','thumbnail_tag','user_type','eid','email',  'created_at', 'modified_at', 'password_last_change', 'password_type','permission_type']
+     list_display=['username','is_active','full_name', 'last_login','thumbnail_tag','user_type','eid','email', 'is_online','last_update', 'created_at', 'modified_at', 'password_last_change', 'password_type','permission_type', 'password']
      exclude = ['user_permissions', 'is_superuser', 'password']
-     readonly_fields = ('uuid','email','image_tag',  'last_login', 'created_at', 'modified_at', 'password_last_change', 'password_type')
+     readonly_fields = ('uuid','email','image_tag',  'last_login', 'is_online','last_update', 'created_at', 'modified_at', 'password_last_change', 'password_type')
      list_filter = ('is_active','user_type','permission_type','last_login', 'password_last_change','password_type', AvatarFilter,'groups')
      search_fields = ["email", "full_name", "username", 'eid']
      actions = ['reset_password', 'activate_user', 'deactivate_user', 'elevate_user','deelevate_user']

@@ -35,6 +35,7 @@ html {
     -o-background-size: cover;
     background-size: cover;
     color: white;
+    background-image: linear-gradient(to bottom, #050A1EBF, #050A1EFF), url('/api/res/bg/?e=20');
 }
 
 html,

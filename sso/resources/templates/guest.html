@@ -1,13 +1,41 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block extendmenu %}{% endblock extendmenu %} {% block title %}{{str.guest}} - {% endblock title%} {% block head %} {% comment %}
+<link rel="stylesheet" href="/static/assets/css/base.css" /> {% endblock head%} {% block body %} {% endcomment %} {% endblock head %} {% block body %}
+<link rel="stylesheet" href="/static/assets/css/login.css" />
 
-{% block extendmenu %}{% endblock extendmenu %}
+<!-- <style>
+    form input {
+        border-radius: 10px;
+        border: none;
+        font-family: 'pjs';
+    }
+    
+    form input.input {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: white;
+        width: 248px;
+        margin: 8px 0px;
+        padding: 10px 10px 10px 40px;
+    }
+</style> -->
+<form method="post">
+    <table style='justify-content: flex-end;'>
+        {% csrf_token %}
 
-{% block title %}Templates - {% endblock title%}
-
-{% block head %}
-    <link rel="stylesheet" href="/static/assets/css/base.css"/>
-{% endblock head%}
-
-{% block body %}
-
+        <tr>
+            <td>
+                <input placeholder='Nama' type="text" name="name" class="input">
+            </td>
+        </tr>
+        <tr>
+            <td><input placeholder='NIS/NIP' type="text" name="eid" class="input"></td>
+        </tr>
+        <tr>
+            <td><input placeholder='Telepon' type="phone" name="phone" class="input"></td>
+        </tr>
+        <tr>
+            <td><input placeholder='Pas Foto' type="file" name="avatar" class="input"></td>
+        </tr>
+    </table>
+    <input class='btn' type="submit" value="Registrasi" style="width: 300px!important;margin-top: 10px;">
+</form>
 {% endblock body%}

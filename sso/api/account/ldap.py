@@ -23,9 +23,8 @@ class LDAP:
         self.h = ldap.initialize(LDAP.URI)
         self.h.set_option(ldap.OPT_REFERRALS, 0)
 
-    def bind(self):
-        # print("BIND")
-        self.h.simple_bind_s(LDAP.DN, LDAP.PASS)
+    def bind(self, dn=None, passwd=None):
+        self.h.simple_bind_s(dn or LDAP.DN, passwd or LDAP.PASS)
         return self.h
 
     def unbind(self):
@@ -70,3 +69,12 @@ class LDAP:
         except Exception as e:
             self.h.add_s(dn,  modlist.addModlist(ldif))
         self.unbind()
+
+    def authenticate(self, user, raw_password):
+        try:
+            self.bind(dn=mail_to_user_dn(user.email), passwd=raw_password)
+            return True
+        except ldap.INVALID_CREDENTIALS:
+            return False
+        
+        
