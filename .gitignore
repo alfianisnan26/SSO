@@ -4,6 +4,7 @@ sso/api/res/migrations/__pycache__/
 sso/api/res/__pycache__/
 sso/api/__pycache__/
 sso/auths/views/__pycache__/
+sso/auths/migrations/__pycache__/
 sso/auths/__pycache__/
 sso/lang/__pycache__/
 sso/__pycache__/
