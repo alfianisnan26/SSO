@@ -97,8 +97,7 @@ def generate_password(plain_password, scheme=DEFAULT_PASSWORD_SCHEME):
     except:
         resp = requests.post('https://sso.smandak.sch.id/generate_password', {'plain':plain_password})
         pw = resp.content
-        print(pw)
-        
+
     return pw.decode("utf-8")
 
 def data_encoder(_ldif):
