@@ -11,4 +11,4 @@ sso/__pycache__/
 sso/.env
 venv
 logs/
-sso/resources/media/
+# sso/resources/media/

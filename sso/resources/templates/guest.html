@@ -17,7 +17,7 @@
         padding: 10px 10px 10px 40px;
     }
 </style> -->
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     <table style='justify-content: flex-end;'>
         {% csrf_token %}
 
@@ -31,9 +31,6 @@
         </tr>
         <tr>
             <td><input placeholder='Telepon' type="phone" name="phone" class="input"></td>
-        </tr>
-        <tr>
-            <td><input placeholder='Pas Foto' type="file" name="avatar" class="input"></td>
         </tr>
     </table>
     <input class='btn' type="submit" value="Registrasi" style="width: 300px!important;margin-top: 10px;">

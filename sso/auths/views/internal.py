@@ -164,18 +164,19 @@ class RegistrationFormView(View):
 
     def post(self, request):
         data = request.POST
-        try:
-            user = User(
-                full_name = data['name'],
-                eid = data['eid'],
-                phone = data['phone'],
-                avatar = data['avatar'],
-            ).save()
-            return Str(request).render('userme.html', context = UserMinimalSerializer(user).data)
-        except Exception as e:
-            toasts = Toast()
-            if('duplicate key' in str(e)):
-                toasts.create("NIS/NIP sudah teregistrasi sebelumnya,<br>Silahkan hubungi admin.", type=toasts.ERROR)
-            else:
-                toasts.create(str(e), type=toasts.ERROR)
-            return Str(request).render('guest.html', context={'toasts': toasts.context})
+        # try:
+        user = User(
+            full_name = data['name'],
+            eid = data['eid'],
+            phone = data['phone'],
+            user_type='GUEST',
+            is_active=False
+        ).save()
+        return Str(request).render('userme.html', context = UserMinimalSerializer(user).data)
+        # except Exception as e:
+        #     toasts = Toast()
+        #     if('duplicate key' in str(e)):
+        #         toasts.create("NIS/NIP sudah teregistrasi sebelumnya,<br>Silahkan hubungi admin.", type=toasts.ERROR)
+        #     else:
+        #         toasts.create(str(e), type=toasts.ERROR)
+        #     return Str(request).render('guest.html', context={'toasts': toasts.context})
