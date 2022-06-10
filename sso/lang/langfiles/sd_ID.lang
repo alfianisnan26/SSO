@@ -43,3 +43,5 @@ go_to_console=Ka konsol
 dashboard=Dasbor
 alert_user_inactive=Pengguna teu aktif, coba taroskeun ka administrator
 alert_user_not_found=Pengguna teu ka panggih
+connect_to_hotspot=Sambungkeun ka HotSpot
+on_hotspot_area=Anjeun aya di aréa HotSpot. Lebet heula kanggé ngaksés internet

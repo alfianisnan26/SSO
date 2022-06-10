@@ -3,7 +3,7 @@
 <div id="login-form">
     <form method="post">
         {% csrf_token %}
-        <input type="hidden" name="next" value="/?next={{ next }}" />
+        <input type="hidden" name="next" value="{{queries}}" />
         <div class="input-wrapper">
             <input placeholder="{{str.eun}}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{str.eun_detail}}" class="input" id="uid" type="name" name="uid">
             <i class="fa-solid fa-user"></i>
@@ -14,7 +14,7 @@
         </div>
         <div id="btn-wrapper" class="clearfix">
             {% if social_available == 'True' %}
-            <a id="to-socmed" href="{{url_smart_login}}?next={{next}}" class="fast-transition">
+            <a id="to-socmed" href="{{url_smart_login}}" class="fast-transition">
                 <i class="fa-solid fa-angle-left"></i>
             </a>
             {% endif %}

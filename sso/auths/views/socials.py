@@ -16,6 +16,8 @@ from rest_framework import views
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
+from sso.utils import parse_query_params, reverse_query
+
 class OauthLogin(views.APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
@@ -44,11 +46,11 @@ class OauthCallback(views.APIView):
     def get(self, request):
         state:dict = OauthCallback.fetch_state(request) 
         do = state.get('do')
-        data = {}
         error = request.query_params.get('error')
         if(error != None):
-            return redirect(reverse('login') + f"?state=error_{error}&next={state.get('next')}")
-        
+            # return redirect(reverse('login') + f"?state=error_{error}&next={state.get('next')}")
+            state['state'] = f'error_{error}'
+            return reverse_query('login', with_redirect=True, query=state, exclude=['request', 'provider'])
         if(do == "login"):
             try:
                 obj = SocialAccountRegister.login(**state)
@@ -57,12 +59,16 @@ class OauthCallback(views.APIView):
                     obj.last_login = datetime.now(tz=pytz.UTC)
                     obj.save()
                     login(request, obj.user, backend=settings.AUTHENTICATION_BACKENDS[0])
-                    return redirect(reverse('home') + f"?next={state.get('next')}")
+                    # return redirect(reverse('home') + f"?next={state.get('next')}")
+                    return reverse_query('home', with_redirect=True, query=state, exclude=['request', 'provider'])
                 else:
-                    return redirect(reverse('login') + f"?state=error_msyacw&next={state.get('next')}")
+                    # return redirect(reverse('login') + f"?state=error_msyacw&next={state.get('next')}")
+                    state['state'] = f'error_msyacw'
+                    return reverse_query('login', with_redirect=True, query=state, exclude=['provider', 'request'])
             except Exception as e:
                 print(e)
-                return redirect(reverse('login') + f"?state=error_clwsa&next={state.get('next')}")
+                state['state'] = f'error_clwsa'
+                return reverse_query('login', with_redirect=True, query=state, exclude=['request', 'provider'])
         
         elif(do == "register"):
             if(not request.user.is_authenticated):

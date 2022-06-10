@@ -12,6 +12,7 @@ from requests_oauthlib import OAuth2Session
 from requests_oauthlib.compliance_fixes import facebook_compliance_fix
 
 from sso.api.account.serializers import UserSerializer
+from sso.utils import parse_query_params
 
 class ProviderManager:
     available = settings.SOCIAL_OAUTH2_PARAMETER
@@ -22,13 +23,13 @@ class ProviderManager:
     def vp(provider):
         return ProviderManager.available[provider]
 
-    def getSocialLoginContext(next):
+    def getSocialLoginContext(queries):
         ctx = []
         for obj in SocialOauthProvider.objects.filter(is_active=True).order_by('order'):
             d = ProviderManager.vp(obj.provider)
             ctx.append({
                 "name" : d['name'],
-                "link" : reverse('social-login', kwargs={'provider':obj.provider}) + f"?do=login&next={next}",
+                "link" : reverse('social-login', kwargs={'provider':obj.provider}) + parse_query_params(queries, exclude=['state'], append={'do':'login'}),
                 "slug" : obj.provider,
                 "icon" : d['icon'],
                 "color" : d['color'],

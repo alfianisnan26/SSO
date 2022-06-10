@@ -13,8 +13,8 @@ from sso.api.account.serializers import UserMinimalSerializer, UserSerializer
 from sso.api.account.utils import generate_password
 
 from sso.auths.models import ProviderManager, SocialOauthProvider
-from sso.auths.utils import UserLoginData, redirect_query
-from sso.auths.utils import Toast
+from sso.utils import parse_query_params, reverse_query
+from sso.auths.utils import Toast, UserLoginData
 from sso.lang.lang import Str
 from django.shortcuts import redirect, render
 from django.contrib.auth import views
@@ -22,22 +22,12 @@ from django.views import View
 from django.contrib.auth import logout as auth_logout
 import urllib.parse
 
-def parse_queries(queries):
-    qp = ""
-    lenq = len(queries) 
-    if(lenq > 0):
-        qp = "?"
-        for i in queries.keys():
-            qp += f"{i}={queries[i]}&"
-    return qp[:-1]
-
 class LogoutView(View):
     def get(self, request):
         auth_logout(request)
         return redirect(reverse('login') + "?state=success_logout")
 
 class LoginView(views.LoginView):
-
     def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         uld = UserLoginData(request, post=True)
         request.POST._mutable = True
@@ -60,9 +50,9 @@ class LoginView(views.LoginView):
         self.social_available = SocialOauthProvider.objects.filter(is_active=True).exists()
         if(request.user.is_authenticated):
             User.update(request)
-            return redirect_query('home', request)
+            return reverse_query('home', request, exclude=['state'], with_redirect=True)
         elif(not self.social_available and request.path == reverse('login')):
-            return redirect_query('login-email', request)
+            return reverse_query('login-email', request, exclude=['state'], with_redirect=True)
             
         self.strs = Str(request)
         self.queries = request.GET
@@ -71,24 +61,27 @@ class LoginView(views.LoginView):
         return self.strs.setLang(resp)
     
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        try:
-            next = urllib.parse.quote(self.queries["next"])
-        except:
-            next = "/"
-
         toasts = Toast()
         try:
             state = self.queries["state"]
             toasts.create(f"str:{state}", header = 'str:cannot_login' if state == 'error_cannot_login' or state == 'error_msyacw' else None, type=state.split("_")[0].upper(), timeout=5)
         except:
             pass
-        context = self.strs.setContext({
+        try:
+            hotspot = self.queries["from"] == 'hotspot'
+            if(hotspot):
+                toasts.create(f"str:on_hotspot_area", header = 'str:connect_to_hotspot', type=toasts.ALERT, timeout=5)
+        except:
+            pass
+
+        params = parse_query_params(self.queries, exclude=['state'])
+        return self.strs.setContext({
                     "social_available" : str(self.social_available),
                     "toasts":toasts.context,
-                    "url_smart_login" : "/login/",
-                    "logins" : ProviderManager.getSocialLoginContext(next) + [{
-                        "link" : reverse('login-email') + f"?next={next}",
+                    "queries": params,
+                    "url_smart_login" : reverse_query('login', query_params=params),
+                    "logins" : ProviderManager.getSocialLoginContext(self.queries) + [{
+                        "link" : reverse_query('login-email', query_params=params),
                         "name" : "Email",
                         "slug" : "email",
                         "icon" : "/static/assets/icons/em.png",
@@ -97,13 +90,11 @@ class LoginView(views.LoginView):
                     }]
                 })
 
-        return context
-
 class WelcomeView(View):
     def get(self, request):
         if(not request.user.is_authenticated):
             print(request.GET)
-            return redirect_query('login', request)
+            return reverse_query('login', request, exclude=['state'], with_redirect=True)
         User.update(request)
         toasts = Toast()
         try:

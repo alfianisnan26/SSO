@@ -49,3 +49,5 @@ go_to_console=Go to console
 dashboard=Dashboard
 alert_user_inactive=User is inactive, please contact your administrator
 alert_user_not_found=User not found
+connect_to_hotspot=Connect to HotSpot
+on_hotspot_area=You are in HotSpot area. Please login first to use internet
