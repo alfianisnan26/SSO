@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import View
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 import pytz
 from rest_framework.views import APIView
 from rest_framework import status
@@ -15,7 +16,6 @@ from django.views.decorators.debug import sensitive_post_parameters
 from oauth2_provider.models import get_access_token_model
 from oauth2_provider.signals import app_authorized
 from oauth2_provider.views.mixins import OAuthLibMixin
-from django.views.decorators.csrf import csrf_exempt
 from oauth2_provider.settings import oauth2_settings
 from oauthlib.oauth2.rfc6749.endpoints.pre_configured import Server
 from oauthlib.common import Request

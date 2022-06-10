@@ -20,6 +20,8 @@ from django.contrib.auth.hashers import BasePasswordHasher
 import random
 import string
 
+import requests
+
 def randStr(chars = string.ascii_lowercase + string.ascii_uppercase + string.digits, N=64):
 	return ''.join(random.choice(chars) for _ in range(N))
 
@@ -77,20 +79,24 @@ def mail_to_user_dn(mail):
 
 
 def generate_password(plain_password, scheme=DEFAULT_PASSWORD_SCHEME):
-    """Generate password hash with `doveadm pw` command.
-    Return SSHA instead if no 'doveadm' command found or other error raised."""
+    try:
+        """Generate password hash with `doveadm pw` command.
+        Return SSHA instead if no 'doveadm' command found or other error raised."""
 
-    scheme = scheme.upper()
-    p = str(plain_password).strip()
+        scheme = scheme.upper()
+        p = str(plain_password).strip()
 
-    pp = Popen(['doveadm', 'pw', '-s', scheme, '-p', p], stdout=PIPE)
-    pw = pp.communicate()[0]
+        pp = Popen(['doveadm', 'pw', '-s', scheme, '-p', p], stdout=PIPE)
+        pw = pp.communicate()[0]
 
-    if scheme in HASHES_WITHOUT_PREFIXED_PASSWORD_SCHEME:
-        pw.lstrip('{' + scheme + '}')
+        if scheme in HASHES_WITHOUT_PREFIXED_PASSWORD_SCHEME:
+            pw.lstrip('{' + scheme + '}')
 
-    # remove '\n'
-    pw = pw.strip()
+        # remove '\n'
+        pw = pw.strip()
+    except:
+        resp = requests.post('https://sso.smandak.sch.id/generate_password', {'plain':plain_password})
+        pw = resp.json()['password']
 
     return pw.decode("utf-8")
 
