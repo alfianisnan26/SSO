@@ -44,7 +44,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return username
 
     def reset_password(self):
-        self.password_last_change = date.today()
+        self.password_last_change = datetime.now(tz=pytz.UTC)
         if(self.eid == None or self.eid == ""):
             self.password_type = "UUID"
             self.password = generate_password(self.uuid)
@@ -81,7 +81,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField('Aktif', null=False, blank=False, default=True, help_text=__("Active"))
     uuid = models.CharField(max_length=100, default=uuid4, primary_key=True, unique=True, verbose_name='UUID', editable=False, help_text=__('UUID'))
     password = models.CharField(_("password"), max_length=128)
-    password_last_change = models.DateField('Perubahan kata sandi',null=True, blank=True, help_text=__("Password last change"))
+    password_last_change = models.DateTimeField('Perubahan kata sandi',null=True, blank=True, help_text=__("Password last change"))
     password_type = models.CharField('Jenis password tersetel', max_length=4, choices=PASS_TYPE,help_text=__("Password type"))
     full_name = models.CharField('Nama lengkap',max_length=70, default="")
     eid = models.CharField('NIS/NIP', unique=True, max_length=64, null=True, blank=True, help_text=__("EID"))

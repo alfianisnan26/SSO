@@ -9,6 +9,7 @@ from requests import request
 from sso import settings
 from sso.api.account.models import User
 from sso.api.account.serializers import UserMinimalSerializer, UserSerializer
+from sso.api.account.utils import generate_password
 
 from sso.auths.models import ProviderManager, SocialOauthProvider
 from sso.auths.utils import UserLoginData
@@ -166,11 +167,13 @@ class RegistrationFormView(View):
         data = request.POST
         try:
             if(data['eid'] == '' or data['eid'] == None): raise Exception('eid')
+            password = generate_password(data['password'])
             user = User(
                 full_name = data['name'],
                 eid = data['eid'],
                 phone = data['phone'],
                 user_type='GUEST',
+                password = password,
                 is_active=False
             )
             user.save()
