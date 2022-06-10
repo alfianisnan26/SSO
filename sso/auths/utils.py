@@ -1,11 +1,12 @@
 from django.conf import settings
+from django.shortcuts import redirect
 from django.urls import reverse
 from django_auth_ldap.backend import LDAPBackend
 from oauth2_provider.models import Application
 
 from sso.api.account.ldap import LDAP
 from sso.auths.models import SocialOauthProvider
-
+from urllib.parse import quote
 # from sso.api.account.utils import LDAPManager
 
 class UserLoginData:
@@ -173,3 +174,18 @@ def populate_application_oauth(*args, **kwargs):
     print()
 def reverse_application_oauth(*args, **kwargs):
     Application.objects.filter(name__icontains='(Auto-generated)').delete()
+
+def parse_query_params(query:dict):
+    if(len(query) == 0):
+        return ""
+    data = []
+    for i in query:
+        v = quote(query[i])
+        data.append(f"{i}={v}")
+    return "?" + "&".join(data)
+
+def redirect_query(url, request=None, query={}):
+    if(not request == None):
+        for i in request.GET:
+            query[i] = request.GET[i]
+    return redirect(reverse(url) + parse_query_params(query))

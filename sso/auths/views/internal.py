@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from email.mime import application
 import json
+import traceback
 from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 from oauth2_provider.models import Grant, Application
@@ -12,7 +13,7 @@ from sso.api.account.serializers import UserMinimalSerializer, UserSerializer
 from sso.api.account.utils import generate_password
 
 from sso.auths.models import ProviderManager, SocialOauthProvider
-from sso.auths.utils import UserLoginData
+from sso.auths.utils import UserLoginData, redirect_query
 from sso.auths.utils import Toast
 from sso.lang.lang import Str
 from django.shortcuts import redirect, render
@@ -59,9 +60,9 @@ class LoginView(views.LoginView):
         self.social_available = SocialOauthProvider.objects.filter(is_active=True).exists()
         if(request.user.is_authenticated):
             User.update(request)
-            return redirect('home')
+            return redirect_query('home', request)
         elif(not self.social_available and request.path == reverse('login')):
-            return redirect('login-email')
+            return redirect_query('login-email', request)
             
         self.strs = Str(request)
         self.queries = request.GET
@@ -101,7 +102,8 @@ class LoginView(views.LoginView):
 class WelcomeView(View):
     def get(self, request):
         if(not request.user.is_authenticated):
-            return redirect('login')
+            print(request.GET)
+            return redirect_query('login', request)
         User.update(request)
         toasts = Toast()
         try:
@@ -195,6 +197,7 @@ class RegistrationFormView(View):
             user.save()
             return Str(request).render('userme.html', context = {'user': UserSerializer(user).data})
         except Exception as e:
+            traceback.print_exc()
             toasts = Toast()
             if('duplicate key' in str(e)):
                 toasts.create("NIS/NIP sudah teregistrasi sebelumnya,<br>Silahkan hubungi admin.", type=toasts.ERROR)
