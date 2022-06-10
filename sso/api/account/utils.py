@@ -91,13 +91,14 @@ def generate_password(plain_password, scheme=DEFAULT_PASSWORD_SCHEME):
 
         if scheme in HASHES_WITHOUT_PREFIXED_PASSWORD_SCHEME:
             pw.lstrip('{' + scheme + '}')
-
+        # print(pw)
         # remove '\n'
         pw = pw.strip()
     except:
         resp = requests.post('https://sso.smandak.sch.id/generate_password', {'plain':plain_password})
-        pw = resp.json()['password']
-
+        pw = resp.content
+        print(pw)
+        
     return pw.decode("utf-8")
 
 def data_encoder(_ldif):

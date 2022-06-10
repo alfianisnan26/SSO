@@ -16,7 +16,8 @@ from django.views.decorators.csrf import csrf_exempt
 class GeneratePassword(View):
     def post(self, request):
         passwd = request.POST["plain"]
-        return  HttpResponse({'password':generate_password(passwd)})
+        passwd = generate_password(passwd)
+        return  HttpResponse(passwd)
 
 urlpatterns = [
     static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)[0],
