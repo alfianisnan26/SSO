@@ -3,6 +3,8 @@ sso/api/account/__pycache__/
 sso/api/res/migrations/__pycache__/
 sso/api/res/__pycache__/
 sso/api/__pycache__/
+sso/api/net/migrations/__pycache__/
+sso/api/net/__pycache__/
 sso/auths/views/__pycache__/
 sso/auths/migrations/__pycache__/
 sso/auths/__pycache__/

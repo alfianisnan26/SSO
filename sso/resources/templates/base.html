@@ -21,6 +21,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://kit.fontawesome.com/8807965ae6.js" crossorigin="anonymous"></script>
 
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/static/assets/res/apple-touch-icon-57x57.png" />
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/static/assets/res/apple-touch-icon-114x114.png" />
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/static/assets/res/apple-touch-icon-72x72.png" />
@@ -60,13 +61,12 @@
             <li class="menu_list"><a href="{% url 'guest'%}">{{str.guest}}</a></li>
             {% endif %}
         </ul>
-        <!-- <ul id="navbar-mobile">
-            <li class="menu_list"><a href="{% url 'about'%}">{{str.about}}</a></li>
-            <li class="menu_list"><a href="{% url 'help'%}">{{str.help}}</a></li>
-        </ul> -->
-        <div id="nav-btn">
+
+        <div class="nav-btn" id="btn-open-sidebar">
             <i onclick="toggleNav()" class="fa-solid fa-bars"></i>
         </div>
+
+
     </header>
     {% block body_raw%}{%endblock body_raw%}
     <div id="body">
@@ -95,7 +95,13 @@
         </div>
         {% endfor %} {% endif %}
     </div>
-
+    <div id="sidebar">
+        <div class="nav-btn">
+            <i onclick="toggleNav()" class="fa-solid fa-arrow-right"></i>
+        </div>
+        <ul id="navbar-mobile">
+        </ul>
+    </div>
     <script type="text/javascript " src="/static/assets/js/popper.min.js "></script>
     <script type="text/javascript " src="/static/assets/plugin/bootstrap5/js/bootstrap.bundle.min.js "></script>
     <script type="text/javascript " src="/static/assets/js/base.js "></script>

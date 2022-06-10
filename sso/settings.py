@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     # Internal apps
     'sso.api.account',
     'sso.api.res',
+    'sso.api.net',
     'sso.auths',
 ]
 

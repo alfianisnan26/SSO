@@ -140,11 +140,17 @@ class WelcomeView(View):
                 "color":"#7B61FF",
                 "url":"str:main_sites_url"
             },
+            # {
+            #     "name":"str:lms",
+            #     "icon":"fa-solid fa-graduation-cap",
+            #     "color":"#0093DD",
+            #     "url":"str:lms_url"
+            # },
             {
-                "name":"str:lms",
-                "icon":"fa-solid fa-graduation-cap",
+                "name":"str:speed_test",
+                "icon":"fa-solid fa-gauge-high",
                 "color":"#0093DD",
-                "url":"str:lms_url"
+                "url":"str:speed_test_url"
             },
             {
                 "preloading" : app.redirect_uris.split(' ')[0],
