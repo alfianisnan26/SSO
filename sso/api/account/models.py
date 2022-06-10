@@ -154,17 +154,16 @@ class User(AbstractBaseUser, PermissionsMixin):
         if(hasattr(kwargs, 'request')):
             if(kwargs.get('request').user.id == self.id):
                 self.update_user(save=False)
-        
         try:
-            self.is_active = self._is_active == "active"
             self.password_last_change = datetime(1970,1,1,0,0) + timedelta(int(self._password_last_change))
             try:
                 self.avatar = ImageFile(io.BytesIO(self._avatar), name=self.avatar.name)
             except:
                 self.avatar = None
+
+            self.is_active = self._is_active == "active"
         except Exception as e:
             pass
-
         if(not self.phone == None and self.phone[0] == "0"):
             self.phone = "+62" + self.phone[1:]
 
@@ -200,7 +199,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             self.password_type = "USER"
         super(User, self).save(*args, **kwargs)
         LDAP().update_user(self)
-    
+
     def delete(self, *args, **kwargs):
         # print("DELETING USER")
         LDAP().delete_user(self)

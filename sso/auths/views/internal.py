@@ -40,7 +40,16 @@ class LoginView(views.LoginView):
     def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         uld = UserLoginData(request, post=True)
         request.POST._mutable = True
-        request.POST['username'] = uld.get_email()
+        email = uld.get_email()
+        request.POST['username'] = email
+        try:
+            user = User.objects.get(email = email)
+        except:
+            return redirect(reverse('login-email') + "?" + request.META['QUERY_STRING'] + "&state=alert_user_not_found")
+
+        if(not user.is_active):
+            return redirect(reverse('login-email') + "?" + request.META['QUERY_STRING'] + "&state=alert_user_inactive")
+        
         out = super().post(request, *args, **kwargs)
         if(not out.status_code == 302):
             return redirect(reverse('login-email') + "?" + request.META['QUERY_STRING'] + "&state=error_cannot_login")
@@ -167,6 +176,7 @@ class RegistrationFormView(View):
         data = request.POST
         try:
             if(data['eid'] == '' or data['eid'] == None): raise Exception('eid')
+            if(not data['password'] == data['_password'] or data['password'] == ''): raise Exception('passwd')
             password = generate_password(data['password'])
             user = User(
                 full_name = data['name'],
@@ -184,6 +194,10 @@ class RegistrationFormView(View):
                 toasts.create("NIS/NIP sudah teregistrasi sebelumnya,<br>Silahkan hubungi admin.", type=toasts.ERROR)
             elif('eid' in str(e)):
                 toasts.create("NIS/NIP tidak boleh kosong", toasts.ERROR)
+            elif('passwd' in str(e)):
+                toasts.create("Kata sandi anda mungkin kosong atau tidak cocok", toasts.ERROR)
+            elif('16' in str(e)):
+                toasts.create("Nomor telepon yang anda masukkan tidak valid", toasts.ERROR)
             else:
                 toasts.create(str(e), type=toasts.ERROR)
             return Str(request).render('guest.html', context={'toasts': toasts.context})

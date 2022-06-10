@@ -4,28 +4,28 @@
     {% csrf_token %}
     <tr>
         <td>Nama Lengkap</td>
-        <td>{{user.full_name}}</td>
+        <td> : {{user.full_name}}</td>
     </tr>
     <tr>
         <td>NIS/NIP</td>
-        <td>{{user.eid}}</td>
+        <td> : {{user.eid}}</td>
     </tr>
     <tr>
         <td>Nomor Telepon</td>
-        <td>{{user.phone}}</td>
+        <td> : {{user.phone}}</td>
     </tr>
     <tr>
         <td>User ID</td>
-        <td>{{user.uuid}}</td>
+        <td> : {{user.uuid}}</td>
     </tr>
     <tr>
         <td>STEP-ID</td>
-        <td>{{user.username}}</td>
+        <td> : {{user.username}}</td>
     </tr>
     <tr>
         <td>Email</td>
-        <td>{{user.email}}</td>
+        <td> : {{user.email}}</td>
     </tr>
 </table>
 <h3>Hubungi admin untuk mengaktifkan akun</h3>
-{% endblock body%}
+<a href="{% url 'login'%}">Masuk sekarang</a> {% endblock body%}

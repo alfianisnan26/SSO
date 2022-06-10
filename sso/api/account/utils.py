@@ -148,7 +148,6 @@ def ldif_mailuser(user, quota=settings.DEFAULT_EMAIL_QUOTA):
     homeDirectory = STORAGE_BASE_DIRECTORY + '/' + mailMessageStore
     # mailMessageStore = STORAGE_NODE + '/' + mailMessageStore
     
-
     _ldif = {
         # 'jpegPhoto' : user,
         'accountStatus' : "active" if user.is_active else "inactive",
@@ -169,7 +168,6 @@ def ldif_mailuser(user, quota=settings.DEFAULT_EMAIL_QUOTA):
         # 'storageBaseDirectory': STORAGE_BASE,
         # 'mailMessageStore': mailMessageStore,
         'homeDirectory': homeDirectory,
-        'accountStatus': 'active',
         'enabledService': ['internal', 'doveadm', 'lib-storage',
                            'indexer-worker', 'dsync', 'quota-status',
                            'mail',
@@ -185,7 +183,6 @@ def ldif_mailuser(user, quota=settings.DEFAULT_EMAIL_QUOTA):
         'shadowLastChange': str(get_days_of_today()),
         'amavisLocal': 'TRUE',
     }
-    
 
     data_mod = data_encoder(_ldif)
 
@@ -194,6 +191,6 @@ def ldif_mailuser(user, quota=settings.DEFAULT_EMAIL_QUOTA):
             file = open(os.path.join(settings.MEDIA_ROOT, user.avatar.name), 'rb')
             data_mod['jpegPhoto'] = [file.read()]
         except Exception as e:
-            print("HERE" , e)
+            print("On jpegPhoto read" , e)
     
     return dn, data_mod

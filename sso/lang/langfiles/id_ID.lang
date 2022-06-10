@@ -42,3 +42,5 @@ console_loading=Memuat konsol
 console_loading_info=Mencoba memuat konsol yang dapat anda gunakan untuk mengatur profil pribadi anda
 go_to_console=Pergi ke konsol
 dashboard=Dasbor
+error_user_inactive=Pengguna belum aktif, mohon hubungi administrator
+error_user_not_found=Pengguna tidak ditemukan

@@ -47,3 +47,5 @@ console_loading=Console is loading
 console_loading_info=Trying to load console for manage your personal account
 go_to_console=Go to console
 dashboard=Dashboard
+error_user_inactive=User is inactive, please contact your administrator
+error_user_not_found=User not found
