@@ -61,7 +61,6 @@ class LDAP:
         return error
 
     def update_user(self, user):
-        if(user.user_type == "GUEST"): return False
         self.bind()
         dn, ldif =  ldif_mailuser(user)
         try:
