@@ -1,6 +1,7 @@
-from tkinter import CASCADE
+from datetime import datetime
 from uuid import uuid4
 from django.db import models
+import pytz
 
 from sso.api.account.models import User
 from sso.api.account.utils import randStr
@@ -20,8 +21,8 @@ class Profile(models.Model):
         return self.name
 
 class Registrant(models.Model):
-    user = models.ForeignKey(to=User,verbose_name="Pengguna",  related_name="net", on_delete=models.CASCADE)
-    profile = models.ForeignKey(to=Profile,verbose_name="Profil Jaringan",  related_name="net", on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User,verbose_name="Pengguna", on_delete=models.CASCADE)
+    profile = models.ForeignKey(to=Profile,verbose_name="Profil Jaringan",  on_delete=models.CASCADE)
     mac = models.CharField("Alamat MAC", unique=True, max_length=20)
     ip = models.CharField("Alamat IP", max_length=15)
     last_login = models.DateTimeField("Terakhir Masuk Pada", null=True, blank=True)
@@ -32,3 +33,7 @@ class Registrant(models.Model):
 
     def __str__(self) -> str:
         return self.user.username
+
+    def login(self):
+        self.last_login = datetime.now(tz=pytz.UTC)
+        self.save()

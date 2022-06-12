@@ -11,6 +11,7 @@ from sso import settings
 from sso.api.account.models import User
 from sso.api.account.serializers import UserMinimalSerializer, UserSerializer
 from sso.api.account.utils import generate_password
+from sso.api.net.utils import Network
 
 from sso.auths.models import ProviderManager, SocialOauthProvider
 from sso.utils import parse_query_params, reverse_query
@@ -93,10 +94,28 @@ class LoginView(views.LoginView):
 class WelcomeView(View):
     def get(self, request):
         if(not request.user.is_authenticated):
-            print(request.GET)
+            # print(request.GET)
             return reverse_query('login', request, exclude=['state'], with_redirect=True)
+        
         User.update(request)
         toasts = Toast()
+
+        out = Network(request).connect()
+        if(out == True):
+            toasts.create(
+                Str(request).get("youre_connected") +
+                f"<br>IP : <strong>{request.GET.get('ip')}</strong>"
+                f"<br>MAC : <strong>{request.GET.get('mac')}</strong>",
+                type=toasts.SUCCESS,
+                timeout=5,
+                header="str:connected"
+            )
+        elif(out == False):
+            pass
+        else:
+            return out
+        
+        
         try:
             next = request.GET["next"]
             if(next == '/'): raise Exception("redirect to root")
@@ -119,6 +138,8 @@ class WelcomeView(View):
                 client_id = settings.APP_DEFAULT_CLIENT_ID
             )
         user:User = request.user
+
+        toasts.create("<a href='https://docs.google.com/forms/d/e/1FAIpQLScrYhE5mJJldtNesZBCo53-yuhuXd7y8vLZGOWv08Wp2JQibQ/viewform'><button class='small'>Klik Disini</button></a>", header="Yuk bantu isi kuisioner ini!")
         
         menus:list = [
             {

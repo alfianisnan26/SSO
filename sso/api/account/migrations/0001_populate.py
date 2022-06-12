@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
         User.objects.filter(username = 'admin').delete()
 
     dependencies = [
-        ('account', '0003_alter_user_password_last_change'),
+        ('account', '0001_initial'),
     ]
 
     operations = [
