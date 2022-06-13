@@ -1,6 +1,7 @@
 import ipaddress
-
 from django.conf import settings
+
+
 from django.http import HttpRequest
 from django.shortcuts import redirect
 
@@ -19,10 +20,22 @@ class Network:
             return self.request.META.get('REMOTE_ADDR')
 
     def is_coming_from_our_network(self):
-        ip = ipaddress.IPv4Address(Network.get_client_ip(self.request))
-        net = ipaddress.IPv4Network(settings.ROUTEROS_NETWORK)
-        return ip in net
+        ip = ipaddress.IPv4Address(self.get_client_ip())
+        net = ipaddress.IPv4Address(settings.ROUTEROS_IP)
+        print(ip, net)
+        return ip == net
 
+    def disconnect(self) -> bool:
+        q = self.request.GET
+        print("DISCONNECTING")
+        if(self.is_coming_from_our_network()):
+            f = q.get("from")
+            print("IN OUR NETWORK")
+            if(f == "logout"):
+                return True
+            print("REDIRECTING")
+            return redirect(settings.ROUTEROS_HOST + "/logout")
+        return True
 
     def connect(self) -> bool:
         q = self.request.GET
@@ -47,7 +60,7 @@ class Network:
                 return True
             else:
                 # UNKNOWN NEED TO CHECK STATUS
-                return redirect()
+                return redirect(settings.ROUTEROS_HOST)
                 pass
         else:
             return False

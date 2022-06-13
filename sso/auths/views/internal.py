@@ -26,7 +26,12 @@ import urllib.parse
 class LogoutView(View):
     def get(self, request):
         auth_logout(request)
-        return redirect(reverse('login') + "?state=success_logout")
+        
+        out = Network(request).disconnect()
+        if(out == True):
+            return redirect(reverse('login') + "?state=success_logout")
+        else:
+            return out
 
 class LoginView(views.LoginView):
     def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
@@ -63,6 +68,7 @@ class LoginView(views.LoginView):
     
     def get_context_data(self, **kwargs):
         toasts = Toast()
+        toasts.create("<a href='https://docs.google.com/forms/d/e/1FAIpQLScrYhE5mJJldtNesZBCo53-yuhuXd7y8vLZGOWv08Wp2JQibQ/viewform'><button class='small'>Klik Disini</button></a>", header="Yuk bantu isi kuisioner ini!")
         try:
             state = self.queries["state"]
             toasts.create(f"str:{state}", header = 'str:cannot_login' if state == 'error_cannot_login' or state == 'error_msyacw' else None, type=state.split("_")[0].upper(), timeout=5)
@@ -94,7 +100,7 @@ class LoginView(views.LoginView):
 class WelcomeView(View):
     def get(self, request):
         if(not request.user.is_authenticated):
-            # print(request.GET)
+            print(request.GET)
             return reverse_query('login', request, exclude=['state'], with_redirect=True)
         
         User.update(request)
@@ -138,8 +144,6 @@ class WelcomeView(View):
                 client_id = settings.APP_DEFAULT_CLIENT_ID
             )
         user:User = request.user
-
-        toasts.create("<a href='https://docs.google.com/forms/d/e/1FAIpQLScrYhE5mJJldtNesZBCo53-yuhuXd7y8vLZGOWv08Wp2JQibQ/viewform'><button class='small'>Klik Disini</button></a>", header="Yuk bantu isi kuisioner ini!")
         
         menus:list = [
             {
@@ -167,7 +171,7 @@ class WelcomeView(View):
                 "url":"str:speed_test_url"
             },
             {
-                "preloading" : app.redirect_uris.split(' ')[0],
+                "preloading" : app.redirect_uris.split(' ')[0] + "?preload=True",
                 "name":"str:dashboard",
                 "icon":"fa-solid fa-screwdriver-wrench",
                 "color":"#FF1818",

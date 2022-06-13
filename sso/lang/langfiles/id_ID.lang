@@ -46,3 +46,5 @@ alert_user_inactive=Pengguna belum aktif, mohon hubungi administrator
 alert_user_not_found=Pengguna tidak ditemukan
 connect_to_hotspot=Sambungkan ke HotSpot
 on_hotspot_area=Anda berada di area HotSpot. Silahkan masuk terlebih dahulu untuk menggunakan internet
+youre_connected=Kamu telah terhubung pada Internet!
+connected=Terhubung
