@@ -23,13 +23,15 @@ class ProviderManager:
     def vp(provider):
         return ProviderManager.available[provider]
 
-    def getSocialLoginContext(queries):
+    def getSocialLoginContext(queries = None, reverser='social-login'):
         ctx = []
+        q =  "" if queries == None else parse_query_params(queries, exclude=['state'], append={'do':'login'})
+        
         for obj in SocialOauthProvider.objects.filter(is_active=True).order_by('order'):
             d = ProviderManager.vp(obj.provider)
             ctx.append({
                 "name" : d['name'],
-                "link" : reverse('social-login', kwargs={'provider':obj.provider}) + parse_query_params(queries, exclude=['state'], append={'do':'login'}),
+                "link" : reverse(reverser, kwargs={'provider':obj.provider}) + q,
                 "slug" : obj.provider,
                 "icon" : d['icon'],
                 "color" : d['color'],
@@ -125,7 +127,9 @@ class SocialAccountRegister(models.Model):
         user = get_object_or_404(User, uuid = kwargs.get('user'))
         data = ProviderManager(**kwargs).user_data()
         provider = SocialOauthProvider.objects.get(provider=kwargs.get('provider'))
-        return SocialAccountRegister(user=user, provider=provider, **data)
+        val = SocialAccountRegister(user=user, provider=provider, **data)
+        if(SocialAccountRegister.objects.filter(provider=provider, uid=val.uid).exists()): raise Exception('conflict_with_other_account')
+        return val
 
     def login(*args, **kwargs):
         data = ProviderManager(**kwargs).user_data()

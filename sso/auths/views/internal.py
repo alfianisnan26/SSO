@@ -8,10 +8,10 @@ from oauth2_provider.models import Grant, Application
 import pytz
 from requests import request
 from sso import settings
-from sso.api.account.models import User
+from sso.api.account.models import Profile, Registrant, User
 from sso.api.account.serializers import UserMinimalSerializer, UserSerializer
 from sso.api.account.utils import generate_password
-from sso.api.net.utils import Network
+from sso.api.account.utils import Network
 
 from sso.auths.models import ProviderManager, SocialOauthProvider
 from sso.utils import parse_query_params, reverse_query
@@ -56,9 +56,9 @@ class LoginView(views.LoginView):
         self.social_available = SocialOauthProvider.objects.filter(is_active=True).exists()
         if(request.user.is_authenticated):
             User.update(request)
-            return reverse_query('home', request, exclude=['state'], with_redirect=True)
+            return reverse_query('home', request, exclude=['state', 'error'], with_redirect=True)
         elif(not self.social_available and request.path == reverse('login')):
-            return reverse_query('login-email', request, exclude=['state'], with_redirect=True)
+            return reverse_query('login-email', request, exclude=['state','error'], with_redirect=True)
             
         self.strs = Str(request)
         self.queries = request.GET
@@ -81,7 +81,7 @@ class LoginView(views.LoginView):
         except:
             pass
 
-        params = parse_query_params(self.queries, exclude=['state'])
+        params = parse_query_params(self.queries, exclude=['state', 'error'])
         return self.strs.setContext({
                     "social_available" : str(self.social_available),
                     "toasts":toasts.context,
@@ -101,12 +101,18 @@ class WelcomeView(View):
     def get(self, request):
         if(not request.user.is_authenticated):
             print(request.GET)
-            return reverse_query('login', request, exclude=['state'], with_redirect=True)
+            return reverse_query('login', request, exclude=[], with_redirect=True)
         
         User.update(request)
         toasts = Toast()
 
-        out = Network(request).connect()
+        try:
+            out = Network(request).connect(Registrant)
+        except Exception as e:
+            # traceback.print_exc()
+            toasts.create(Str(request).get("cannot_login_hotspot") + "<br>" + str(e) + "<br><a href=%s><button class='small'>%s</button></a>" % (settings.ROUTEROS_HOST, Str(request).get("try_again")), type=toasts.ERROR, header="str:cannot_login")
+            out = False
+
         if(out == True):
             toasts.create(
                 Str(request).get("youre_connected") +
@@ -170,13 +176,18 @@ class WelcomeView(View):
                 "color":"#0093DD",
                 "url":"str:speed_test_url"
             },
+            # {
+            #     "preloading" : app.redirect_uris.split(' ')[0] + "?preload=True",
+            #     "name":"str:dashboard",
+            #     "icon":"fa-solid fa-screwdriver-wrench",
+            #     "color":"#FF1818",
+            #     "url": reverse('grant', kwargs={'app':app.client_id})
+            # }
             {
-                "preloading" : app.redirect_uris.split(' ')[0] + "?preload=True",
                 "name":"str:dashboard",
                 "icon":"fa-solid fa-screwdriver-wrench",
                 "color":"#FF1818",
-                # TODO OAuth Code for App.Smandak
-                "url": reverse('grant', kwargs={'app':app.client_id})
+                "url": reverse('dashboard')
             }
         ]
         return Str(request).render('home.html', context={
@@ -186,9 +197,9 @@ class WelcomeView(View):
         "authenticated" : str(request.user.is_authenticated),
         "profile":{
             'name':user.full_name,
-            "role":user.user_type,
+            "role":user.profile.id,
             "permission":user.permission_type,
-            "rolename":f"str:{user.user_type}",
+            "rolename":f"str:{user.profile.id}",
             "url_pic": user.get_avatar(placeholder=True)
         }})
 
@@ -206,7 +217,7 @@ class RegistrationFormView(View):
                 full_name = data['name'],
                 eid = data['eid'],
                 phone = data['phone'],
-                user_type='GUEST',
+                profile=Profile.objects.get(id="GUEST"),
                 password = password,
                 is_active=False
             )

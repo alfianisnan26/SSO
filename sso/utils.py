@@ -7,12 +7,12 @@ def parse_query_params(query:dict, exclude=[], append={}):
     
     data = []
     for i in append:
-        if(not i in exclude):
+        if(not (i in exclude)):
             v = quote(append[i]) 
             data.append(f"{i}={v}")
 
     for i in query:
-        if(not i in exclude):
+        if(not (i in exclude)):
             v = quote(query[i])
             data.append(f"{i}={v}")
 

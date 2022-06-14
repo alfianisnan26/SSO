@@ -32,7 +32,7 @@ class UserMinimalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['uuid', 'last_login', 'full_name', 'eid', 'username', 'email', 'user_type', 'avatar', 'is_online']
+        fields = ['uuid', 'last_login', 'full_name', 'eid', 'username', 'email', 'profile', 'avatar', 'is_online']
 
 class UserPublicSerializer(serializers.ModelSerializer):
     is_online = serializers.SerializerMethodField()

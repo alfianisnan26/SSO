@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.utils.translation import ngettext
 from django.contrib import admin
 from django import forms
-from sso.api.account.models import User
+from sso.api.account.models import Profile, Registrant, User
 from django.contrib.admin import SimpleListFilter
 from django.utils.translation import gettext_lazy as _
 class AvatarFilter(SimpleListFilter):
@@ -23,12 +23,14 @@ class AvatarFilter(SimpleListFilter):
 
 
 class UserAdmin(admin.ModelAdmin):
-     list_display=['username','is_active','full_name', 'last_login','thumbnail_tag','user_type','eid','email', 'is_online','last_update', 'created_at', 'modified_at', 'password_last_change', 'password_type','permission_type', 'password']
+     list_display=['username','is_active','full_name', 'last_login','thumbnail_tag','profile','eid','email', 'is_online','last_update', 'created_at', 'modified_at', 'password_last_change', 'password_type','permission_type']
      exclude = ['user_permissions', 'is_superuser', 'password']
      readonly_fields = ('uuid','email','image_tag',  'last_login', 'is_online','last_update', 'created_at', 'modified_at', 'password_last_change', 'password_type')
-     list_filter = ('is_active','user_type','permission_type','last_login', 'password_last_change','password_type', AvatarFilter,'groups')
+     list_filter = ('is_active','profile','permission_type','last_login', 'password_last_change','password_type', AvatarFilter,'groups')
      search_fields = ["email", "full_name", "username", 'eid']
-     actions = ['reset_password', 'activate_user', 'deactivate_user', 'elevate_user','deelevate_user', 'user_to_student', 'user_to_staff', 'user_to_teacher', 'usert_to_alumni', 'user_to_guest']
+     actions = ['reset_password', 'activate_user', 'deactivate_user', 'elevate_user','deelevate_user']
+     list_editable = ['is_active', 'profile']
+     
      @admin.action(description='Reset password')
      def reset_password(self, request, queryset):
           for user in queryset:
@@ -56,37 +58,45 @@ class UserAdmin(admin.ModelAdmin):
           queryset.update(permission_status='none')
           self.message_user(request, f'{len(queryset)} pengguna dikembalikan menjadi standar', messages.SUCCESS)
 
-     @admin.action(description='Ubah pengguna menjadi Siswa')
-     def user_to_student(self, request, queryset):
-          queryset.update(user_type='STUDENT')
-          self.message_user(request, f'{len(queryset)} pengguna di ubah ke Siswa', messages.SUCCESS)
+     # @admin.action(description='Ubah pengguna menjadi Siswa')
+     # def user_to_student(self, request, queryset):
+     #      queryset.update(profile='STUDENT')
+     #      self.message_user(request, f'{len(queryset)} pengguna di ubah ke Siswa', messages.SUCCESS)
 
-     @admin.action(description='Ubah pengguna menjadi Staff')
-     def user_to_staff(self, request, queryset):
-          queryset.update(user_type='STAFF')
-          self.message_user(request, f'{len(queryset)} pengguna di ubah ke Staff', messages.SUCCESS)
+     # @admin.action(description='Ubah pengguna menjadi Staff')
+     # def user_to_staff(self, request, queryset):
+     #      queryset.update(profile='STAFF')
+     #      self.message_user(request, f'{len(queryset)} pengguna di ubah ke Staff', messages.SUCCESS)
 
-     @admin.action(description='Ubah pengguna menjadi Guru')
-     def user_to_teacher(self, request, queryset):
-          queryset.update(user_type='TEACHER')
-          self.message_user(request, f'{len(queryset)} pengguna di ubah ke Guru', messages.SUCCESS)
+     # @admin.action(description='Ubah pengguna menjadi Guru')
+     # def user_to_teacher(self, request, queryset):
+     #      queryset.update(profile='TEACHER')
+     #      self.message_user(request, f'{len(queryset)} pengguna di ubah ke Guru', messages.SUCCESS)
 
-     @admin.action(description='Ubah pengguna menjadi Alumni')
-     def user_to_alumni(self, request, queryset):
-          queryset.update(user_type='ALUMNI')
-          self.message_user(request, f'{len(queryset)} pengguna di ubah ke Alumni', messages.SUCCESS)
+     # @admin.action(description='Ubah pengguna menjadi Alumni')
+     # def user_to_alumni(self, request, queryset):
+     #      queryset.update(profile='ALUMNI')
+     #      self.message_user(request, f'{len(queryset)} pengguna di ubah ke Alumni', messages.SUCCESS)
 
-     @admin.action(description='Ubah pengguna menjadi Tamu')
-     def user_to_guest(self, request, queryset):
-          queryset.update(user_type='GUEST')
-          self.message_user(request, f'{len(queryset)} pengguna di ubah ke Tamu', messages.SUCCESS)
+     # @admin.action(description='Ubah pengguna menjadi Tamu')
+     # def user_to_guest(self, request, queryset):
+     #      queryset.update(profile='GUEST')
+     #      self.message_user(request, f'{len(queryset)} pengguna di ubah ke Tamu', messages.SUCCESS)
 
      def delete_queryset(self, request, queryset):
           for i in queryset:
                i.delete()
           
      
+class ProfileAdmin(admin.ModelAdmin):
+     list_display = ['name', 'shared_user', 'download_speed', 'upload_speed', 'download_quota', 'upload_quota']
+     
 
+class RegistrantAdmin(admin.ModelAdmin):
+     list_display = ['user', 'last_login']
+     readonly_fields = ['token', 'uuid', 'last_login']
 
+admin.site.register(Profile, ProfileAdmin)
 admin.site.register(User, UserAdmin)
+admin.site.register(Registrant, RegistrantAdmin)
 

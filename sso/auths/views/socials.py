@@ -33,6 +33,26 @@ class OauthRegister(views.APIView):
         state = request.META['QUERY_STRING'] + "&do=register" + "&provider=" + provider + "&user=" + request.user.uuid
         return ProviderManager(request, provider, state).redirect_authorize()
 
+class OauthRevoke(views.APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, provider):
+        User.update(request)
+        try:
+            provider = SocialOauthProvider.objects.get(provider=provider)
+            data = get_object_or_404(SocialAccountRegister, user=request.user, provider=provider)
+            data.delete()
+            if('next' in request.GET):
+                return redirect(request.GET['next'])
+            return Response(data=SocialAccountRegisterSerializer(data).data)
+        except Exception as e:
+            print(e)
+            if('next' in request.GET):
+                return redirect(request.GET['next'] + "?state=error_cannot_revoke")
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        
+        
+
 class OauthCallback(views.APIView):
     def fetch_state(request):
         kwargs = {'request': request}
@@ -79,9 +99,11 @@ class OauthCallback(views.APIView):
                 data = SocialAccountRegisterSerializer(data).data
             except Exception as e:
                 print('ERROR : ', e)
+                if('next' in state):
+                    return redirect(state.get('next') + "?state=error_" + str(e))
                 return Response(status=status.HTTP_400_BAD_REQUEST)
-                
-        if(hasattr(state, 'next')):
+
+        if('next' in state):
             return redirect(state.get('next'))
 
         return Response(data=data)

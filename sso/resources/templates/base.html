@@ -53,13 +53,18 @@
         <ul>
             <li class="menu_list"><a href="{% url 'about'%}">{{str.about}}</a></li>
             <li class="menu_list"><a href="{% url 'help'%}">{{str.help}}</a></li>
-            {% block extendmenu %}{% endblock extendmenu %} {% if authenticated == 'True'%} {% if not profile.permission == 'none' %}
+            {% block extendmenu %}{% endblock extendmenu %}
+            <li class="menu_list"><a href="{% url 'home'%}">{{str.home}}</a></li>{% if authenticated == 'True'%} {% if not profile.permission == 'none' %}
             <li class="menu_list"><a href="/admin">{{str.admin}}</a></li>
             {% endif %}
-            <li class="menu_list"><a href="{% url 'logout'%}">{{str.logout}}</a></li>
+            <a class="menu_list" style="text-decoration:none" href="{% url 'logout'%}">
+                <li id="logout-btn">{{str.logout}}</li>
+            </a>
             {% else %}
             <li class="menu_list"><a href="{% url 'guest'%}">{{str.guest}}</a></li>
             {% endif %}
+
+
         </ul>
 
         <div class="nav-btn" id="btn-open-sidebar">
@@ -72,7 +77,7 @@
     <div id="body">
         {% block body %}{% endblock body %}
     </div>
-    <footer>
+    <footer class="frost">
         <div id="copyright">
             <p>©{{str.cc}} - {{str.suborganization}}</p>
         </div>

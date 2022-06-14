@@ -2,9 +2,10 @@ from django.http import HttpRequest
 from django.shortcuts import redirect
 from django.urls import include, path
 from oauth2_provider.views import AuthorizationView
+from sso.api.account.views import Dashboard
 from sso.auths.views.internal import LoginView, LogoutView, RegistrationFormView, WelcomeView
 from sso.auths.views.oauth import GrantView, TokenViewOauth
-from sso.auths.views.socials import OauthCallback, OauthLogin, OauthRegister
+from sso.auths.views.socials import OauthCallback, OauthLogin, OauthRegister, OauthRevoke
 from sso.lang.lang import Str
 
 
@@ -28,5 +29,7 @@ urlpatterns = [
     path('auth/social/handler/', OauthCallback.as_view(), name = "social-handler"),
     path('auth/social/<str:provider>/', OauthLogin.as_view(), name = "social-login"),
     path('auth/social/<str:provider>/register/', OauthRegister.as_view(), name = "social-register"),
+    path('auth/social/<str:provider>/revoke/', OauthRevoke.as_view(), name = "social-revoke"),
+    path('dashboard/', Dashboard.as_view(), name = "dashboard"),
     path("", WelcomeView.as_view(), name="home"),
 ]

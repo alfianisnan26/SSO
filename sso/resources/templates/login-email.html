@@ -5,11 +5,12 @@
         {% csrf_token %}
         <input type="hidden" name="next" value="{{queries}}" />
         <div class="input-wrapper">
-            <input placeholder="{{str.eun}}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{str.eun_detail}}" class="input" id="uid" type="name" name="uid">
+            <input placeholder="{{str.eun}}" style="margin:8px 0px;padding:12px 10px 12px 40px
+            " data-bs-toggle="tooltip" data-bs-placement="top" title="{{str.eun_detail}}" class="input" id="uid" type="name" name="uid">
             <i class="fa-solid fa-user"></i>
         </div>
         <div class="input-wrapper">
-            <input placeholder="{{str.password}}" class="input" id="password" type="password" name="password">
+            <input placeholder="{{str.password}}" style="margin:8px 0px;padding:12px 10px 12px 40px" class="input" id="password" type="password" name="password">
             <i class="fa-solid fa-lock"></i>
         </div>
         <div id="btn-wrapper" class="clearfix">
@@ -18,7 +19,7 @@
                 <i class="fa-solid fa-angle-left"></i>
             </a>
             {% endif %}
-            <input class="btn {% if not social_available == 'True' %}only_email{% endif %}" type="submit" value="{{str.login}}">
+            <input style="width:250px" class="btn {% if not social_available == 'True' %}only_email{% endif %}" type="submit" value="{{str.login}}">
         </div>
         <div id="login-footer" class="clearfix">
             <a href="/account/forgot_password">{{str.forgot_password}}</a>

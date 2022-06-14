@@ -4,7 +4,7 @@
     <div id="socmed-btns-wrapper">
         <div id="socmed-btns">
             {% for login in logins%}
-            <a href="{{login.link}}">
+            <a href="{{login.link}}" style="text-decoration:none">
                 <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{str.login_with}} {{login.name}}" class="socmed-btn fast-transition" style="color:{{login.color}}; background-color:{{login.bg_color}}">
                     <img id="single-socmed-btn" alt="{{login.slug}} sign-in" src={{login.icon}} />
                 </div>

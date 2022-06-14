@@ -1,0 +1,51 @@
+{% extends "base.html" %} {% block extendmenu %}{% endblock extendmenu %} {% block title %}{{str.dashboard}} - {% endblock title%} {% block head %} {% comment %}
+<link rel="stylesheet" href="/static/assets/css/base.css" /> {% endblock head%} {% block body %} {% endcomment %} {% endblock head %} {% block body %}
+<link rel="stylesheet" href="/static/assets/css/login.css" />
+
+<!-- <h1>{{str.dashboard}}</h1> -->
+<form method="post" enctype="multipart/form-data">
+    <table style='justify-content: flex-end;margin:auto'>
+        {% csrf_token %}
+
+        <tr>
+            <td>
+                <input placeholder="{{str.name}}" type="text" name="name" value="{{user.full_name}}" disabled="disabled" class="input">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input placeholder="{{str.email}}" type="text" name="email" value="{{user.email}}" disabled="disabled" class="input">
+            </td>
+        </tr>
+        <tr>
+            <td><input placeholder='NIS/NIP' type="text" name="eid" value="{{user.eid}}" disabled="disabled" class="input"></td>
+        </tr>
+        <tr>
+            <td><input placeholder="{{str.avatar}}" type="file" name="avatar" class="input"></td>
+        </tr>
+        <tr>
+            <td><input placeholder="{{str.phone}}" type="phone" name="phone" value="{{user.phone}}" class="input"></td>
+        </tr>
+        <tr>
+            <td><input placeholder="{{str.change_password}}" type="password" name="password" class="input"></td>
+        </tr>
+        <tr>
+            <td><input placeholder="{{str.confirm_password}}" type="password" name="_password" class="input"></td>
+        </tr>
+
+        <tr>
+            <td>
+                <input class='btn' type="submit" value="{{str.save}}" style="margin-top: 10px;">
+            </td>
+        </tr>
+    </table>
+
+</form>
+<p style="margin-bottom:5px">{{str.ctysma}}</p>
+{% for login in logins %}
+<a href="{{login.link}}?next=/dashboard/" style="text-decoration:none">
+    <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% if login.available == 'true' %}{{str.register}}{% else %}{{str.revoke}}{% endif %} {{login.name}}" class="socmed-btn fast-transition" style="height:20px;width:20px;color:{{login.color}}; padding:10px; background-color:{{login.bg_color}}">
+        <img style="height:20px;width:20px;" id="single-socmed-btn" alt="{{login.slug}} sign-in" src={{login.icon}} />
+    </div>
+</a>
+{% endfor %} {% endblock body%}

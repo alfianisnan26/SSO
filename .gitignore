@@ -14,3 +14,4 @@ sso/.env
 venv
 logs/
 # sso/resources/media/
+mikrotik_monitor/

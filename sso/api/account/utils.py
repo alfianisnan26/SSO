@@ -16,11 +16,19 @@ from typing import List, Dict
 import re
 import ldif
 from django.contrib.auth.hashers import BasePasswordHasher
+import routeros_api as r
 
 import random
 import string
 
 import requests
+
+import ipaddress
+from django.conf import settings
+
+
+from django.http import HttpRequest
+from django.shortcuts import redirect
 
 def randStr(chars = string.ascii_lowercase + string.ascii_uppercase + string.digits, N=64):
 	return ''.join(random.choice(chars) for _ in range(N))
@@ -160,7 +168,7 @@ def ldif_mailuser(user, quota=settings.DEFAULT_EMAIL_QUOTA):
         'sn': user.username,
         'uid': user.username,
         'employeeNumber':user.eid,
-        'employeeType':user.user_type,
+        'employeeType':user.profile,
         'mailboxFolder': "Maildir",
         'mailboxFormat': "maildir",
         'shadowLastChange' : get_days_of_today(),
@@ -194,3 +202,58 @@ def ldif_mailuser(user, quota=settings.DEFAULT_EMAIL_QUOTA):
             print("On jpegPhoto read" , e)
     
     return dn, data_mod
+
+class Network:
+
+    routeros_context = r.RouterOsApiPool(
+            host=settings.ROUTEROS_HOST.replace("https://",""),
+            username=settings.ROUTEROS_API_USERNAME,
+            password=settings.ROUTEROS_API_PASSWORD,
+            use_ssl=True,
+            plaintext_login=True
+        )
+
+    def __init__(self, request:HttpRequest) -> None:
+        self.request = request
+
+    def get_client_ip(self):
+        x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            return x_forwarded_for.split(',')[0]
+        else:
+            return self.request.META.get('REMOTE_ADDR')
+
+    def is_coming_from_our_network(self):
+        ip = ipaddress.IPv4Address(self.get_client_ip())
+        net = ipaddress.IPv4Address(settings.ROUTEROS_IP)
+        print(ip, net)
+        return ip == net
+
+    def disconnect(self) -> bool:
+        q = self.request.GET
+        print("DISCONNECTING")
+        if(self.is_coming_from_our_network()):
+            f = q.get("from")
+            print("IN OUR NETWORK")
+            if(f == "logout"):
+                return True
+            print("REDIRECTING")
+            return redirect(settings.ROUTEROS_HOST + "/logout")
+        return True
+
+    def connect(self, registrant=None) -> bool:
+        q = self.request.GET
+        if(self.is_coming_from_our_network()):
+            if(q.get("error") != "" and q.get("error") != None): raise Exception(q.get("error"))
+            fr = q.get("from")
+            if(fr == "login"):
+                token, uuid = registrant.login(self.request.user)
+                return redirect(settings.ROUTEROS_HOST + f"/login?token={token}&uuid={uuid}&next=")
+            elif(fr == "status"):
+                # IT HAS LOGIN
+                return True
+            else:
+                # UNKNOWN NEED TO CHECK STATUS
+                return redirect(settings.ROUTEROS_HOST)
+        else:
+            return False

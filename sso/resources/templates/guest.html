@@ -23,22 +23,26 @@
 
         <tr>
             <td>
-                <input placeholder='Nama' type="text" name="name" class="input">
+                <input placeholder='{{str.name}}' type="text" name="name" class="input">
             </td>
         </tr>
         <tr>
             <td><input placeholder='NIS/NIP' type="text" name="eid" class="input"></td>
         </tr>
         <tr>
-            <td><input placeholder='Telepon' type="phone" name="phone" class="input"></td>
+            <td>
+                <input placeholder='{{str.phone}}' ' type="phone" name="phone" class="input"></td>
         </tr>
         <tr>
-            <td><input placeholder='Kata Sandi' type="password" name="password" class="input"></td>
+            <td><input placeholder="{{str.avatar}}" type="file" name="avatar" class="input"></td>
         </tr>
         <tr>
-            <td><input placeholder='Konfirmasi Kata Sandi' type="password" name="_password" class="input"></td>
+            <td><input placeholder='{{str.password}} ' type="password" name="password" class="input"></td>
+        </tr>
+        <tr>
+            <td><input placeholder='{{str.confirm_password}} ' type="password" name="_password" class="input"></td>
         </tr>
     </table>
-    <input class='btn' type="submit" value="Registrasi" style="width: 300px!important;margin-top: 10px;">
+    <input class='btn ' type="submit" value="{{str.register}}" style="margin-top: 10px;">
 </form>
 {% endblock body%}

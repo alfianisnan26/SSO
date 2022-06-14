@@ -1,13 +1,22 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block extendmenu %}{% endblock extendmenu %} {% block title %}{{str.about}} - {% endblock title%} {% block head %}
+<!-- <link rel="stylesheet" href="/static/assets/css/base.css"/> -->
+{% endblock head%} {% block body_raw %}
 
-{% block extendmenu %}{% endblock extendmenu %}
-
-{% block title %}{{str.about}} - {% endblock title%}
-
-{% block head %}
-    <!-- <link rel="stylesheet" href="/static/assets/css/base.css"/> -->
-{% endblock head%}
-
-{% block body %}
-
-{% endblock body%}
+<style>
+    .center {
+        text-align: center;
+    }
+</style>
+<div style="padding: 60px 9%;text-align:justify;position:absolute">
+    <h1 class="center">Tentang</h1>
+    <p class="center">Terimakasih telah mengunjungi Portal SSO SMA Negeri 1 Cibadak</p>
+    <p class="center">Portal SSO SMA Negeri 1 Cibadak merupakan salah satu proyek yang digarap dan dikembangkan melalui proyek skripsi yang berjudul :
+        <p class="center"><strong>Perancangan dan Implementasi Sistem Otentikasi SSO Masuk Berbasis OAuth Pada Sumber Daya Jaringan Lokal<br>SMA Negeri 1 Cibadak</strong></p>
+        <p class="center">disusun oleh<br><strong>Alfian Badrul Isnan</strong><br>Mahasiswa Teknik Komputer<br>Fakultas Teknik, Universitas Indonesia</p>
+        <p class="center">berkolaborasi dengan<br><strong>IT Club SMA Negeri 1 Cibadak</strong>
+        </p>
+        <p>Tujuan dari proyek ini adalah membentuk sistem manajemen pengguna, dalam hal ini seluruh warga sekolah agar difokuskan kedalam sistem yang tersentralisasi.</p>
+        <p>Seluruh sistem situs internal nantinya akan diintegrasikan kedalam sistem ini, menggunakan teknologi otentikasi OAuth, sehingga setiap pengguna dapat masuk keseluruh situs internal sekolah cukup dengan satu buah akun saja. STEP-ID merupakan sebutan
+            untuk username dari sistem SSO ini. Dengan STEP-ID, pengguna juga dapat menikmati layanan Email khusus dengan domain smandak.sch.id</p>
+</div>
+{% endblock body_raw%}

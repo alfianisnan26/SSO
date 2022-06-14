@@ -97,8 +97,8 @@ class Str:
         return resp
     
     def urlSetLang(request:HttpRequest, lang):
-        for i in sorted(request.META):
-            print(i, request.META[i], sep=" : ")
+        # for i in sorted(request.META):
+        #     print(i, request.META[i], sep=" : ")
         try:
             ret = redirect(request.GET["next"])
         except:

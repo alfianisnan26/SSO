@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 import io
 import os
 import re
@@ -10,18 +10,54 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.core.files.images import ImageFile
 from imagekit.models import ProcessedImageField
-from imagekit.processors import ResizeToFit, SmartCrop
+from imagekit.processors import SmartCrop
 from django.utils.html import mark_safe
-from hurry.filesize import size, verbose
 from django.templatetags.static import static
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 import pytz
+from requests import session
 from .variables import get as __
 from sso.api.account.ldap import LDAP
 
 from .managers import UserManager
-from .utils import generate_password, upload_avatar
+from .utils import Network, generate_password, randStr, upload_avatar
+
+class Profile(models.Model):
+    id = models.CharField("ID Profil", max_length=10, primary_key=True)
+    name = models.CharField("Nama Profil",max_length=46)
+    download_speed = models.BigIntegerField("Kecepatan Unduh")
+    upload_speed = models.BigIntegerField("Kecepatan Unggah")
+    download_quota = models.BigIntegerField("Kuota Unduh")
+    upload_quota = models.BigIntegerField("Kuota Unggah")
+    session_timeout = models.DurationField("Waktu Sesi")
+    description = models.TextField("Deskripsi", null=True, blank=True)
+    shared_user = models.SmallIntegerField("Jumlah Pengguna Maksimum", default=1)
+
+    def __str__(self) -> str:
+        return self.name
+
+    def save(self, *args, **kwargs):
+        ctx = Network.routeros_context
+        api = ctx.get_api()
+        profile = api.get_resource('/ip/hotspot/user/profile')
+        try:
+            profile.add(
+                name=self.id,
+                address_pool='hotspot_pool',
+                shared_users=str(self.shared_user),
+                session_timeout=str(int(self.session_timeout.total_seconds())),
+                rate_limit="%s/%s" % (self.download_speed, self.upload_speed)
+            )
+        except Exception as e:
+            profile.set(**{'id':profile.get(name=self.id)[0]["id"], 
+                'shared_users':str(self.shared_user),
+                'address_pool':'hotspot_pool',
+                'session_timeout':str(int(self.session_timeout.total_seconds())),
+                'rate_limit':"%s/%s" % (self.download_speed, self.upload_speed)
+            })
+        ctx.disconnect()
+        super(Profile, self).save(*args, **kwargs)
 
 class User(AbstractBaseUser, PermissionsMixin):
     
@@ -56,13 +92,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
     
-    USER_TYPE = (
-        ("STUDENT","Siswa"),
-        ("GUEST","Tamu"),
-        ("TEACHER","Guru"),
-        ("STAFF","Staff"),
-        ("ALUMNI","Alumni")
-    )
+    # USER_TYPE = (
+    #     ("STUDENT","Siswa"),
+    #     ("GUEST","Tamu"),
+    #     ("TEACHER","Guru"),
+    #     ("STAFF","Staff"),
+    #     ("ALUMNI","Alumni")
+    # )
     
     PASS_TYPE = [
         ("USER","User defined"),
@@ -86,7 +122,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField('Nama lengkap',max_length=70, default="")
     eid = models.CharField('NIS/NIP', unique=True, max_length=64, null=True, blank=True, help_text=__("EID"))
     username = models.CharField('Username', max_length=70, unique=True, blank=True, null=True, help_text=__("Username"))
-    user_type = models.CharField('Peran pengguna',max_length=10, choices = USER_TYPE, null=True, default='GUEST')
+    profile = models.ForeignKey(to=Profile, verbose_name="Profil Pengguna", on_delete=models.SET_NULL, null=True, blank=True)
     permission_type = models.CharField('Jenis pengguna', default='none', max_length=5, choices=PERMISSION_TYPE)
     email = models.EmailField(unique=True, help_text=__("Email"))
     phone = models.CharField('Telepon',max_length=16, blank=True, null=True,help_text=__("Phone"))
@@ -230,6 +266,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             if(placeholder):
                 return static('assets/res/placeholder.png')
 
+
     image_tag.short_description = 'Photo'
     image_tag.allow_tags = True
 
@@ -242,3 +279,79 @@ def default_start_time():
     start = now.replace(hour=22, minute=0, second=0, microsecond=0)
     return start if start > now else start + timedelta(days=1)  
 
+class Registrant(models.Model):
+    user = models.OneToOneField(to=User,verbose_name="Pengguna", on_delete=models.CASCADE)
+    last_login = models.DateTimeField("Terakhir Masuk Pada", null=True, blank=True)
+    token = models.CharField("Token", default=randStr, max_length=64)
+    uuid = models.CharField("UUID", primary_key=True, default=uuid4, max_length=100)
+
+
+    def __str__(self) -> str:
+        return self.user.username
+
+    def save(self, *args, **kwargs):
+        ctx = Network.routeros_context
+        api = ctx.get_api()
+        hotspot = api.get_resource('/ip/hotspot/user')
+        profile:Profile = self.user.profile
+        try:
+            hotspot.add(
+                name=self.user.uuid,
+                profile=str(profile.id),
+                limit_bytes_in=str(profile.download_quota),
+                limit_bytes_out=str(profile.upload_quota),
+                limit_uptime=str(int(profile.session_timeout.total_seconds())),
+                password=self.token)
+        except Exception as e:
+            print(e)
+            hotspot.set(**{
+                'id':hotspot.get(name=self.user.uuid)[0]['id'],
+                'password':self.token,
+                'profile':str(profile.id),
+                'limit_bytes_in':str(profile.download_quota),
+                'limit_bytes_out':str(profile.upload_quota),
+                'limit_uptime':str(int(profile.session_timeout.total_seconds())),
+            })
+        return super(Registrant, self).save(*args, **kwargs)
+
+    def login(user):
+        try:
+            reg = Registrant.objects.get(user=user)
+            reg.token = randStr()
+        except:
+            reg = Registrant(user=user)
+        reg.last_login = datetime.now(tz=pytz.UTC)
+        reg.save()
+        print("DOING LOGIN")
+        return reg.token, reg.user.uuid
+
+    # def login(self):
+    #     self.last_login = datetime.now(tz=pytz.UTC)
+
+
+    #     ctx = Network.routeros_context
+    #     api = ctx.get_api()
+
+    #     hotspot = api.get_resource('/ip/hotspot/user')
+    #     users = hotspot.get(mac_address=self.mac)
+    #     if(len(users) == 0):
+    #         hotspot.add(
+    #             name=self.uuid,
+    #             mac_address=self.mac,
+    #             limit_uptime="2m",
+    #             limit_bytes_in="300",
+    #             limit_bytes_out="400",
+    #             email=self.user.email,
+    #             profile="default",
+    #             address=self.ip,
+    #             password=self.token
+    #         )
+    #     # else:
+    #     #     id = users[0]["id"]
+    #     #     hotspot.set(id, name=self.uuid)
+    #     #     hotspot.set(id, address=self.ip)
+    #     #     hotspot.set(id, password=self.token)
+
+
+    #     ctx.disconnect()
+    #     self.save()
