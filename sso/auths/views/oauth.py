@@ -106,7 +106,7 @@ class TokenViewOauth(APIView):
 
     def post(self, request:HttpResponse):
         out = self.token_post_generator(request)
-        print(out.status_code, out.data)
+        # print(out.status_code, out.data)
         return out
         
 

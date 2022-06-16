@@ -99,7 +99,7 @@ def generate_password(plain_password, scheme=DEFAULT_PASSWORD_SCHEME):
 
         if scheme in HASHES_WITHOUT_PREFIXED_PASSWORD_SCHEME:
             pw.lstrip('{' + scheme + '}')
-        # print(pw)
+        # # print(pw)
         # remove '\n'
         pw = pw.strip()
     except:
@@ -117,7 +117,7 @@ def data_encoder(_ldif):
                 data_mod[k] = [val.encode('utf-8') for val in v]
             else: data_mod[k] = [v.encode('utf-8')]
         except Exception as e:
-            # print(k, e)
+            # # print(k, e)
             pass
     return data_mod
 
@@ -199,8 +199,8 @@ def ldif_mailuser(user, quota=settings.DEFAULT_EMAIL_QUOTA):
             file = open(os.path.join(settings.MEDIA_ROOT, user.avatar.name), 'rb')
             data_mod['jpegPhoto'] = [file.read()]
         except Exception as e:
-            print("On jpegPhoto read" , e)
-    
+            # print("On jpegPhoto read" , e)
+            pass
     return dn, data_mod
 
 class Network:
@@ -226,18 +226,18 @@ class Network:
     def is_coming_from_our_network(self):
         ip = ipaddress.IPv4Address(self.get_client_ip())
         net = ipaddress.IPv4Address(settings.ROUTEROS_IP)
-        print(ip, net)
+        # print(ip, net)
         return ip == net
 
     def disconnect(self) -> bool:
         q = self.request.GET
-        print("DISCONNECTING")
+        # print("DISCONNECTING")
         if(self.is_coming_from_our_network()):
             f = q.get("from")
-            print("IN OUR NETWORK")
+            # print("IN OUR NETWORK")
             if(f == "logout"):
                 return True
-            print("REDIRECTING")
+            # print("REDIRECTING")
             return redirect(settings.ROUTEROS_HOST + "/logout")
         return True
 

@@ -28,7 +28,7 @@ class LDAP:
         return self.h
 
     def unbind(self):
-        # print("UNBIND")
+        # # print("UNBIND")
         self.h.unbind_s()
         return self.h
 
@@ -56,7 +56,8 @@ class LDAP:
             self.h.delete_s(dn)
             error = False
         except Exception as e:
-            print(e)
+            # print(e)
+            pass
         self.unbind()
         return error
 

@@ -45,7 +45,7 @@ class OauthRevoke(views.APIView):
                 return redirect(request.GET['next'])
             return Response(data=SocialAccountRegisterSerializer(data).data)
         except Exception as e:
-            print(e)
+            # print(e)
             if('next' in request.GET):
                 return redirect(request.GET['next'] + "?state=error_cannot_revoke")
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -57,7 +57,7 @@ class OauthCallback(views.APIView):
     def fetch_state(request):
         kwargs = {'request': request}
         params = request.query_params["state"].split("&")
-        print(params)
+        # print(params)
         for i in [var for var in params if var]:
             j = i.split("=")
             kwargs[j[0]] = j[1]
@@ -86,7 +86,7 @@ class OauthCallback(views.APIView):
                     state['state'] = f'error_msyacw'
                     return reverse_query('login', with_redirect=True, query=state, exclude=['provider', 'request'])
             except Exception as e:
-                print(e)
+                # print(e)
                 state['state'] = f'error_clwsa'
                 return reverse_query('login', with_redirect=True, query=state, exclude=['request', 'provider'])
         
@@ -98,7 +98,7 @@ class OauthCallback(views.APIView):
                 data.save()
                 data = SocialAccountRegisterSerializer(data).data
             except Exception as e:
-                print('ERROR : ', e)
+                # print('ERROR : ', e)
                 if('next' in state):
                     return redirect(state.get('next') + "?state=error_" + str(e))
                 return Response(status=status.HTTP_400_BAD_REQUEST)

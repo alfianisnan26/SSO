@@ -49,7 +49,7 @@ class Dashboard(View):
             else:
                 logins[i]['available'] = 'true'
 
-        # print(logins)
+        # # print(logins)
         return Str(request).render('dashboard.html', context={
             'user':user,
             'toasts':toasts.context,
@@ -67,7 +67,7 @@ class Dashboard(View):
             ava:InMemoryUploadedFile = request.FILES.get('avatar')
             if(ava != None):
                 user.avatar = ImageFile(ava.file, name=ava.name)
-                print(user.avatar)
+                # print(user.avatar)
             user.save()
         except Exception as e:
             return redirect(reverse('dashboard') + "?state=error_" + str(e))

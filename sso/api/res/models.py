@@ -6,7 +6,7 @@ from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from imagekit.models import ProcessedImageField
-from imagekit.processors import ResizeToFit
+from imagekit.processors import SmartResize
 from django.utils.html import mark_safe
 from hurry.filesize import size, verbose
 from uuid import uuid4
@@ -22,7 +22,7 @@ class Background(models.Model):
     image = ProcessedImageField(
         upload_to=upload_image,
         format='WEBP',
-        processors=[ResizeToFit(1920, 1080)],
+        processors=[SmartResize(1920, 1080)],
         options={'quality': 75}, blank=False, null=False)
     name = models.CharField(max_length=64, blank=True, null=True, default="")
     location_at = models.CharField(max_length=128, blank=True, null=True)

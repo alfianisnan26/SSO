@@ -71,7 +71,7 @@ class ProviderManager:
         
         if(self.provider == 'twitter'):
             data = data['data']
-            print(data)
+            # print(data)
         
 
         out = {}
@@ -134,7 +134,7 @@ class SocialAccountRegister(models.Model):
     def login(*args, **kwargs):
         data = ProviderManager(**kwargs).user_data()
         # TODO delete print data
-        print(data)
+        # print(data)
         provider = SocialOauthProvider.objects.get(provider=kwargs.get('provider'), is_active=True)
         return SocialAccountRegister.objects.filter(provider=provider, uid=data['uid'])
 

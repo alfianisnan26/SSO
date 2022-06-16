@@ -10,7 +10,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.core.files.images import ImageFile
 from imagekit.models import ProcessedImageField
-from imagekit.processors import SmartCrop
+from imagekit.processors import SmartResize
 from django.utils.html import mark_safe
 from django.templatetags.static import static
 from django.db.models import Q
@@ -129,7 +129,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     avatar = ProcessedImageField(verbose_name='File foto',
         upload_to=upload_avatar,
         format='PNG',
-        processors=[SmartCrop(600, 800)],
+        processors=[SmartResize(600, 800)],
         options={'quality': 85}, blank=True, null=True)
     created_at = models.DateTimeField('Dibuat pada', auto_now_add=True, help_text=__("Created at"))
     modified_at = models.DateTimeField('Diedit pada',auto_now=True, help_text=__("Modified at"))
@@ -237,13 +237,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         LDAP().update_user(self)
 
     def delete(self, *args, **kwargs):
-        # print("DELETING USER")
+        # # print("DELETING USER")
         LDAP().delete_user(self)
         try:
             path = os.path.join(settings.MEDIA_ROOT, 'users', self.uuid)
             shutil.rmtree(path)
         except Exception as e:
-            print(e)
+            # print(e)
+            pass
 
         super(User, self).delete(*args, **kwargs)
 
@@ -254,7 +255,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             pass
 
     def image_tag(self):
-        print(self.avatar.url)
+        # print(self.avatar.url)
         if(self.avatar == None):
             return self.email
         return mark_safe(f'<div style="width:200px;height:300px;"><img style="object-fit:cover;width:100%;height:100%;" src="{self.avatar.url}"/></div>')
@@ -303,7 +304,7 @@ class Registrant(models.Model):
                 limit_uptime=str(int(profile.session_timeout.total_seconds())),
                 password=self.token)
         except Exception as e:
-            print(e)
+            # print(e)
             hotspot.set(**{
                 'id':hotspot.get(name=self.user.uuid)[0]['id'],
                 'password':self.token,
@@ -322,7 +323,7 @@ class Registrant(models.Model):
             reg = Registrant(user=user)
         reg.last_login = datetime.now(tz=pytz.UTC)
         reg.save()
-        print("DOING LOGIN")
+        # print("DOING LOGIN")
         return reg.token, reg.user.uuid
 
     # def login(self):

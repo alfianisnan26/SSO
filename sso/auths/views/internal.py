@@ -100,7 +100,7 @@ class LoginView(views.LoginView):
 class WelcomeView(View):
     def get(self, request):
         if(not request.user.is_authenticated):
-            print(request.GET)
+            # print(request.GET)
             return reverse_query('login', request, exclude=[], with_redirect=True)
         
         User.update(request)
@@ -119,7 +119,7 @@ class WelcomeView(View):
                 f"<br>IP : <strong>{request.GET.get('ip')}</strong>"
                 f"<br>MAC : <strong>{request.GET.get('mac')}</strong>",
                 type=toasts.SUCCESS,
-                timeout=5,
+                # timeout=5,
                 header="str:connected"
             )
         elif(out == False):

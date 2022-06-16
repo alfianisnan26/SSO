@@ -150,12 +150,12 @@ def populate_application_oauth(*args, **kwargs):
         'skip_authorization': True
     }
     Application(**kwargs).save()
-    print("\n\nPlease set your webmail Oauth configuration data immediately\n")
-    for i in kwargs:
-        print(i, kwargs[i], sep = " : ")
-    print('oauth_auth_uri :', 'https://sso.' + settings.MAIN_DOMAIN + reverse('authorize'))
-    print('oauth_token_uri :', "https://sso." + settings.MAIN_DOMAIN + reverse('token'))
-
+    # print("\n\nPlease set your webmail Oauth configuration data immediately\n")
+    # for i in kwargs:
+        # print(i, kwargs[i], sep = " : ")
+    # print('oauth_auth_uri :', 'https://sso.' + settings.MAIN_DOMAIN + reverse('authorize'))
+    # print('oauth_token_uri :', "https://sso." + settings.MAIN_DOMAIN + reverse('token'))
+        
     kwargs = {
         'client_id': settings.APP_DEFAULT_CLIENT_ID,
         'client_secret':settings.APP_DEFAULT_CLIENT_SECRET,
@@ -166,11 +166,11 @@ def populate_application_oauth(*args, **kwargs):
         'skip_authorization': True
     }
     Application(**kwargs).save()
-    print("\nPlease set your webapp Oauth configuration data immediately\n")
-    for i in kwargs:
-        print(i, kwargs[i], sep = " : ")
-    print('oauth_auth_uri :', 'https://app.' + settings.MAIN_DOMAIN + reverse('authorize'))
-    print('oauth_token_uri :', "https://app." + settings.MAIN_DOMAIN + reverse('token'))
-    print()
+    # print("\nPlease set your webapp Oauth configuration data immediately\n")
+    # for i in kwargs:
+        # print(i, kwargs[i], sep = " : ")
+    # print('oauth_auth_uri :', 'https://app.' + settings.MAIN_DOMAIN + reverse('authorize'))
+    # print('oauth_token_uri :', "https://app." + settings.MAIN_DOMAIN + reverse('token'))
+    # print()
 def reverse_application_oauth(*args, **kwargs):
     Application.objects.filter(name__icontains='(Auto-generated)').delete()
