@@ -326,33 +326,8 @@ class Registrant(models.Model):
         # print("DOING LOGIN")
         return reg.token, reg.user.uuid
 
-    # def login(self):
-    #     self.last_login = datetime.now(tz=pytz.UTC)
-
-
-    #     ctx = Network.routeros_context
-    #     api = ctx.get_api()
-
-    #     hotspot = api.get_resource('/ip/hotspot/user')
-    #     users = hotspot.get(mac_address=self.mac)
-    #     if(len(users) == 0):
-    #         hotspot.add(
-    #             name=self.uuid,
-    #             mac_address=self.mac,
-    #             limit_uptime="2m",
-    #             limit_bytes_in="300",
-    #             limit_bytes_out="400",
-    #             email=self.user.email,
-    #             profile="default",
-    #             address=self.ip,
-    #             password=self.token
-    #         )
-    #     # else:
-    #     #     id = users[0]["id"]
-    #     #     hotspot.set(id, name=self.uuid)
-    #     #     hotspot.set(id, address=self.ip)
-    #     #     hotspot.set(id, password=self.token)
-
-
-    #     ctx.disconnect()
-    #     self.save()
+class ManagementAccount(models.Model):
+    uuid = models.CharField(max_length=100, default=uuid4, primary_key=True, unique=True, verbose_name='UUID', editable=False, help_text=__('UUID'))
+    user = models.OneToOneField(User, verbose_name=_("Related User"), on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)

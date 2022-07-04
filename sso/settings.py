@@ -25,6 +25,7 @@ env = environ.Env()
 environ.Env.read_env()
 
 MAIN_DOMAIN = env('MAIN_DOMAIN')
+ROOT_DOMAIN = env('ROOT_DOMAIN')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -61,6 +62,10 @@ INSTALLED_APPS = [
     # Internal apps
     'sso.api.account',
     'sso.api.res',
+    'sso.api.management.student',
+    'sso.api.management.staff',
+    'sso.api.management.teacher',
+    'sso.api.management.alumni',
     'sso.auths',
 ]
 
@@ -250,7 +255,7 @@ SOCIAL_OAUTH2_PARAMETER = {
 
 # LDAP Configuration
 
-DOMAIN_NAME = ",".join(list(map(lambda r: "dc=" + r, str(MAIN_DOMAIN).split("."))))
+DOMAIN_NAME = ",".join(list(map(lambda r: "dc=" + r, str(ROOT_DOMAIN).split("."))))
 AUTH_LDAP_SERVER_URI = "ldap://" + env('LDAP_HOST')
 AUTH_USER_MODEL = 'account.User'
 
@@ -259,7 +264,6 @@ AUTH_LDAP_PASSWORD = env("LDAP_PASSWORD")
 LDAP_BASEDN = 'o=domains,' + DOMAIN_NAME 
 
 AUTH_LDAP_USER_DN_TEMPLATE = "mail=%(user)s,ou=Users,domainName=" + MAIN_DOMAIN + "," + LDAP_BASEDN
-
 AUTH_LDAP_USER_ATTR_MAP = {
     "username": "sn",
     "full_name": "cn",

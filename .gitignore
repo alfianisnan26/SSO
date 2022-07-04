@@ -16,3 +16,11 @@ logs/
 # sso/resources/media/
 mikrotik_monitor/
 sso/resources/media/
+sso/api/management/alumni/__pycache__/
+sso/api/management/student/__pycache__/
+sso/api/management/teacher/__pycache__/
+sso/api/management/staff/__pycache__/
+sso/api/management/alumni/migrations/__pycache__/
+sso/api/management/student/migrations/__pycache__/
+sso/api/management/teacher/migrations/__pycache__/
+sso/api/management/staff/migrations/__pycache__/

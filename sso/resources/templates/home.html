@@ -6,7 +6,7 @@
 <div id="profile" class="clearfix">
     <div id="profile-left">
         <div id="profile-pic">
-            <img src="{{profile.url_pic}}" id="profile-photos" alt="{{profile.name}}">
+            <img src="{{profile.url_pic}}" id="profile-photos" alt="{{profile.name}}" {% if "placeholder" in profile.url_pic %} style="object-position:center" {% endif %}>
 
             <div id="profile-role">
                 <p class="bg-{{profile.role}}">{{profile.rolename}}</p>

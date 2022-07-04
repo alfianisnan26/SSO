@@ -39,13 +39,13 @@ class LoginView(views.LoginView):
         request.POST._mutable = True
         email = uld.get_email()
         request.POST['username'] = email
-        try:
-            user = User.objects.get(email = email)
-        except:
-            return redirect(reverse('login-email') + "?" + request.META['QUERY_STRING'] + "&state=alert_user_not_found")
+        # try:
+        #     user = User.objects.get(email = email)
+        # except:
+        #     return redirect(reverse('login-email') + "?" + request.META['QUERY_STRING'] + "&state=alert_user_not_found")
 
-        if(not user.is_active):
-            return redirect(reverse('login-email') + "?" + request.META['QUERY_STRING'] + "&state=alert_user_inactive")
+        # if(not user.is_active):
+        #     return redirect(reverse('login-email') + "?" + request.META['QUERY_STRING'] + "&state=alert_user_inactive")
         
         out = super().post(request, *args, **kwargs)
         if(not out.status_code == 302):
@@ -200,7 +200,7 @@ class WelcomeView(View):
             "role":user.profile.id,
             "permission":user.permission_type,
             "rolename":f"str:{user.profile.id}",
-            "url_pic": user.get_avatar(placeholder=True)
+            "url_pic": user.get_avatar(placeholder=True), 
         }})
 
 class RegistrationFormView(View):
