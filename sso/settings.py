@@ -52,11 +52,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # 3rd parties apps
+    'imagekit',
     'corsheaders',
     'rest_framework',
     'sslserver',
     'oauth2_provider',
-    'imagekit',
 
     # Internal apps
     'sso.api.account',

@@ -22,6 +22,7 @@ from oauthlib.common import Request
 from oauth2_provider.models import Application, AccessToken, RefreshToken
 from sso import settings
 from sso.api.account.models import User
+from sso.api.account.serializers import UserSerializer
 from sso.api.account.utils import randStr
 from oauth2_provider.models import Grant
 from passlib.hash import django_pbkdf2_sha256, sha256_crypt
@@ -58,6 +59,7 @@ class TokenViewOauth(APIView):
 
     def token_post_generator(self, request:HttpRequest):
         data = request.data
+        print(data)
         try:
             app = Application.objects.get(client_id = data['client_id'])
             if(not django_pbkdf2_sha256.verify(data['client_secret'], app.client_secret)):
@@ -77,7 +79,28 @@ class TokenViewOauth(APIView):
                 token.delete()
             except:
                 pass
-        
+        elif(data['grant_type'] == 'credential'):
+            try:
+                Grant.objects.filter(expires__lte = datetime.now(tz=pytz.UTC)).delete()
+                grant = Grant.objects.get(code=data['code'], application=app)
+            except:
+                return Response({'error':'code not found. Perhaps it is invalid or expired'}, status=status.HTTP_404_NOT_FOUND)
+            
+            try:
+                verifier = data['code_verifier']
+            except:
+                return Response({'error':'code_verifier must be supplied'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if(grant.code_challenge_method == 'plain'):
+                if(not grant.code_challenge == verifier):
+                    return Response({'error' : 'code challenge does not match'}, status=status.HTTP_400_BAD_REQUEST)
+            elif(grant.code_challenge_method == 'S256'):
+                # TODO : VERIFY PKCE
+                # if(not sha256_crypt.verify(verifier, grant.code_challenge)):
+                #    return Response({'error' : 'code challenge does not match'}, status=status.HTTP_400_BAD_REQUEST)
+                pass
+            data = UserSerializer(grant.user).data
+            grant.delete()
         elif(data['grant_type'] == 'authorization_code'):
             try:
                 Grant.objects.filter(expires__lte = datetime.now(tz=pytz.UTC)).delete()

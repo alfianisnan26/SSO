@@ -2,6 +2,7 @@ from django.http import HttpRequest
 from django.shortcuts import redirect
 from django.urls import include, path
 from oauth2_provider.views import AuthorizationView
+from rest_framework.response import Response
 from sso.api.account.views import Dashboard
 from sso.auths.views.internal import LoginView, LogoutView, RegistrationFormView, WelcomeView
 from sso.auths.views.oauth import GrantView, TokenViewOauth

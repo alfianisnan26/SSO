@@ -19,9 +19,7 @@ class GeneratePassword(View):
         passwd = generate_password(passwd)
         return  HttpResponse(passwd)
 
-urlpatterns = [
-    static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)[0],
-    static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)[0],
+urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + [
     path('setlang/<lang>/', Str.urlSetLang, name = "set_lang"),
     path("admin/logout/", lambda r: redirect("logout")),
     path("admin/login/", lambda r: redirect(reverse("login") + "?next=/admin/&state=alert_must_login")),

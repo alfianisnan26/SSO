@@ -193,7 +193,7 @@ class WelcomeView(View):
         return Str(request).render('home.html', context={
         "menus" : menus,   
         "toasts": toasts.context,
-        "redirect" : next, # urllib.parse.unquote(next),
+        "redirect" : urllib.parse.unquote(next),
         "authenticated" : str(request.user.is_authenticated),
         "profile":{
             'name':user.full_name,
